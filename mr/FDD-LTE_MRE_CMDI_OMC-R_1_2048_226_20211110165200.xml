@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bulkPmMrDataFile>
+    <fileHeader fileFormatVersion="V2.0.2" reportTime="2021-11-10T16:53:00.754" startTime="2021-11-10T16:51:58.720" endTime="2021-11-10T16:53:00.160" period="0" jobid="170"/>
+    <eNB id="226">
+        <measurement>
+            <smr>MR.LteScRSRP MR.LteNcRSRP MR.LteScRSRQ MR.LteNcRSRQ MR.LteScEarfcn MR.LteScPci MR.LteNcEarfcn MR.LteNcPci MR.GsmNcellBcch MR.GsmNcellCarrierRSSI MR.GsmNcellNcc MR.GsmNcellBcc</smr>
+        </measurement>
+    </eNB>
+</bulkPmMrDataFile>
