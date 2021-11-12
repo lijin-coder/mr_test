@@ -3,11 +3,10 @@
     <TEST_CONF>
         <test_total_time>2</test_total_time>
         <cellid>226</cellid>
-        <mr_test_enodeb_num>1</mr_test_enodeb_num>
+        <enbid>226</enbid>
         <event>A1,A2,A3,A4,A5</event>
         <standard_LTE>FDD-LTE</standard_LTE>
         <OEM>CMDI</OEM>
-        <OmcName>OMC-R</OmcName>
         <file_delay_time>30</file_delay_time>
         <is_57_out_excel>0</is_57_out_excel>
         <is_58_out_excel>0</is_58_out_excel>

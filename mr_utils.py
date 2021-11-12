@@ -69,16 +69,15 @@ def MR_xml_file_name_accuracy(file_name):
         return False
     if gl.TEST_CONF['OEM'] != filename.split('_')[2]:
         return False
-    if gl.TEST_CONF['OmcName'] != filename.split('_')[3]:
+    if re.search(filename.split('_')[3], gl.MR_CONF['OmcName']) == None:
         return False
-    if gl.TEST_CONF['cellid'] != filename.split('_')[len(filename.split('_')) - 2]:
+    if re.search(filename.split('_')[len(filename.split('_')) - 2], gl.TEST_CONF['enbid']) == None:
         return False
     time_stamp_str = filename.split('_')[len(filename.split('_')) - 1].split('.')[0]
     time_array = time.strptime(time_stamp_str, "%Y%m%d%H%M%S")
     timestamp = int(time.mktime(time_array))
     if timestamp % (60) != 0:
         return False
-
     return True
 
 
@@ -147,7 +146,10 @@ def conf_xml_parse():
             for i in range(len(item_entity_list)):
                 gl.TEST_ITEM_LIST.append(item_entity_list[i].firstChild.data )
                 #print (TEST_ITEM_LIST[i+1])
+        gl.TEST_CONF['mr_test_enodeb_num'] = str(len(gl.TEST_CONF['enbid'].split(',')))
 
+    else:
+        print ('no conf.xml file')
 
 def get_time_format(format="%Y:%m:%d %H:%M:%S"):
     temp_time = time.time()
@@ -292,3 +294,104 @@ def test_out_data_item_header(out_type):
             file_object.write(gl.TEST_ITEM_LIST[gl.TEST_OUT[out_type][i+1]])
             file_object.write(" | ");
         file_object.write("\n")
+
+
+def is_cell_id_exist(eciid):
+    cell_id = eciid & 0xff
+    if str(cell_id) in gl.TEST_CONF['cellid'].split(','):
+        return True, cell_id
+    else:
+        return False,cell_id
+
+def is_eci_correct_by_MRECGIList(eciid):
+    if gl.MR_CONF['MRECGIList'] == 'all':
+        return True
+    ecgi_list = gl.MR_CONF['MRECGIList'].split(',')
+    for ecgi_entity in ecgi_list:
+        eci = int(ecgi_entity.split('-')[1])
+        if int(eciid) == eci:
+            return True
+    return False
+
+def is_eci_correct(eci_id):
+    cell_id_list = gl.TEST_CONF['cellid']
+    enb_id_list = gl.TEST_CONF['enbid']
+    eci_id_list = []
+    for i in range(len(cell_id_list)):
+        for j in range(len(enb_id_list)):
+            temp_eci_id = (int(enb_id_list[j]) << 8) | int(cell_id_list[i])
+            eci_id_list.append(temp_eci_id)
+    if eci_id in eci_id_list and is_eci_correct_by_MRECGIList(eci_id):
+        return True
+    return False
+
+
+
+def is_mr_item_need_exist(mr_name):
+    if gl.MR_CONF['MeasureItems'] == 'all':
+        return True
+    elif re.search(mr_name, gl.MR_CONF['MeasureItems']) != None:
+        return True
+    return False
+
+def is_enb_id_exist(enb_id):
+    if re.search(str(enb_id), gl.TEST_CONF['enbid']) == None:
+        return False
+    else:
+        return True
+
+
+def get_mr_item_pos(mr_name_dict, smr_str):
+    smr_list = smr_str.split(' ')
+    for mr_name in mr_name_dict:
+        temp_flag = 0
+        for i in range(len(smr_list)):
+            if mr_name == smr_list[i]:
+                if mr_name_dict.__contains__(mr_name) == False:
+                    mr_name_dict[mr_name] = {'pos':0}
+                if mr_name_dict[mr_name].__contains__('pos') == False:
+                    mr_name_dict[mr_name]['pos'] = 0
+                mr_name_dict[mr_name]['pos'] = i
+                temp_flag = 1
+                break
+        if temp_flag == 0:
+            if mr_name_dict.__contains__(mr_name) == False:
+                mr_name_dict[mr_name] = {'pos':0}
+            if mr_name_dict[mr_name].__contains__('pos') == False:
+                mr_name_dict[mr_name]['pos'] = 0
+            mr_name_dict[mr_name]['pos'] = 0
+
+def get_mre_pos_list_by_mapping(mre_conf_dict, smr_str):
+    standard_smr_str_list = ['MR.LteScRSRP','MR.LteNcRSRP', 'MR.LteScRSRQ', 'MR.LteNcRSRQ', 'MR.LteScEarfcn', 'MR.LteScPci', 'MR.LteNcEarfcn',\
+                             'MR.LteNcPci', 'MR.GsmNcellBcch', 'MR.GsmNcellCarrierRSSI', 'MR.GsmNcellNcc', 'MR.GsmNcellBcc']
+    mre_smr_head = 'MR.LteScRSRP MR.LteNcRSRP MR.LteScRSRQ MR.LteNcRSRQ MR.LteScEarfcn MR.LteScPci MR.LteNcEarfcn MR.LteNcPci MR.GsmNcellBcch MR.GsmNcellCarrierRSSI MR.GsmNcellNcc MR.GsmNcellBcc'
+    if smr_str == mre_smr_head:
+        return
+    smr_list = smr_str.split(' ')
+    for mre_event in mre_conf_dict:
+        temp_pos_list = mre_conf_dict[mre_event]['pos'][:]
+        mre_conf_dict[mre_event]['pos'].clear()
+        for i in range(len(smr_list)):
+            for j in range(len(temp_pos_list)):
+                if standard_smr_str_list[temp_pos_list[j]] == smr_list[i]:
+                    mre_conf_dict[mre_event]['pos'].append(i)
+                    break
+
+def out_text_dict_append_list(out_dict, key, str):
+    if out_dict.__contains__(key) == False:
+        out_dict[key] = []
+    out_dict[key].append(str)
+
+def get_measureItem_list(mr_dict):
+    measure_item_list = ['MR.RSRP','MR.RSRQ','MR.ReceivedIPower','MR.PowerHeadRoom','MR.SinrUL','MR.RIPPRB','MR.RsrpRsrq','MR.RipRsrp','MR.RipRsrq','MR.SinrULRip',\
+        'MR.LteScRSRP','MR.LteNcRSRP','MR.LteScRSRQ','MR.LteNcRSRQ','MR.LteScPHR','MR.LteScRIP','MR.LteScSinrUL','MR.LteScEarfcn','MR.LteScPci','MR.LteNcEarfcn',\
+                         'MR.LteNcPci','MR.GsmNcellBcch','MR.GsmNcellCarrierRSSI','MR.GsmNcellNcc','MR.GsmNcellBcc']
+    if gl.MR_CONF['MeasureItems'] == 'all':
+        for i in range(len(measure_item_list)):
+            mr_dict[measure_item_list[i]] = 0
+    else:
+        meas_list = gl.MR_CONF['MeasureItems'].split(',')
+        for i in range(len(meas_list)):
+            for j in range(len(measure_item_list)):
+                if meas_list[i] == measure_item_list[j]:
+                    mr_dict[meas_list[i]] = 0

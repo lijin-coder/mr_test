@@ -24,7 +24,7 @@ MR_DICT = {}
 MR_TYPE = {'MRO':1, 'MRE':2, 'MRS':3}
 
 
-TEST_CONF = {'test_total_time':0, 'cellid':0, 'mr_test_enodeb_num':0, 'event':'', 'standard_LTE':'', 'OEM':'', 'OmcName':'', \
+TEST_CONF = {'test_total_time':'', 'cellid':'', 'enbid':'', 'event':'', 'standard_LTE':'', 'OEM':'',  \
              'file_delay_time':'', 'is_57_out_excel':'', 'is_58_out_excel':'', 'is_59_out_excel':'',\
              'test51':'','test52':'','test53':'','test54':'','test55':'','test56':'','test57':'','test58':'','test59':'','test61':'',\
              'test62':'','test63':'','test71':'','test72':'','test73':'','test_add_timestamp':''}
