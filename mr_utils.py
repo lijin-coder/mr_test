@@ -314,8 +314,9 @@ def is_eci_correct_by_MRECGIList(eciid):
     return False
 
 def is_eci_correct(eci_id):
-    cell_id_list = gl.TEST_CONF['cellid']
-    enb_id_list = gl.TEST_CONF['enbid']
+    cell_id_list = gl.TEST_CONF['cellid'].split(',')
+    enb_id_list = gl.TEST_CONF['enbid'].split(',')
+
     eci_id_list = []
     for i in range(len(cell_id_list)):
         for j in range(len(enb_id_list)):
@@ -376,6 +377,25 @@ def get_mre_pos_list_by_mapping(mre_conf_dict, smr_str):
                 if standard_smr_str_list[temp_pos_list[j]] == smr_list[i]:
                     mre_conf_dict[mre_event]['pos'].append(i)
                     break
+def get_mro_pos_list_by_mapping(mro_conf_dict, smr_str):
+    standard_smr_str_list = ['MR.LteScEarfcn', 'MR.LteScPci', 'MR.LteScRSRP', 'MR.LteScRSRQ', 'MR.LteScPHR', 'MR.LteScSinrUL', 'MR.LteNcEarfcn', 'MR.LteNcPci',\
+                             'MR.LteNcRSRP', 'MR.LteNcRSRQ' ]
+    mro_smr_head = 'MR.LteScEarfcn MR.LteScPci MR.LteScRSRP MR.LteScRSRQ MR.LteScPHR MR.LteScSinrUL MR.LteNcEarfcn MR.LteNcPci MR.LteNcRSRP MR.LteNcRSRQ '
+    if mro_smr_head.strip() == smr_str.strip():
+        return
+    smr_list = smr_str.split(' ')
+    for mr_name in mro_conf_dict:
+        if mro_conf_dict[mr_name].__contains__('pos') == False:
+            continue
+        temp_flag = 0
+        for i in range(len(standard_smr_str_list)):
+            if standard_smr_str_list[i] == mr_name:
+                mro_conf_dict[mr_name]['pos'] = i
+                temp_flag = 1
+                break
+        if temp_flag == 0:
+            mro_conf_dict[mr_name]['pos'] = -1
+
 
 def out_text_dict_append_list(out_dict, key, str):
     if out_dict.__contains__(key) == False:
@@ -395,3 +415,36 @@ def get_measureItem_list(mr_dict):
             for j in range(len(measure_item_list)):
                 if meas_list[i] == measure_item_list[j]:
                     mr_dict[meas_list[i]] = 0
+
+def is_mr_value_correct(smr_str, value_str):
+    smr_list = smr_str.strip().split(' ')
+    value_list = value_str.strip().split(' ')
+    range_dict = {'MR.LteScRSRP':[0, 97],'MR.LteNcRSRP':[0, 97],'MR.LteScRSRQ':[0, 34],'MR.LteNcRSRQ':[0, 34],'MR.LteScPHR':[0, 63],'MR.LteScRIP':[0, 511],\
+                  'MR.LteScSinrUL':[0, 36],'MR.LteScEarfcn':[0, 41589],'MR.LteScPci':[0, 503],'MR.LteNcEarfcn':[0, 41589],\
+                         'MR.LteNcPci':[0, 503],'MR.GsmNcellBcch':[0, 1023],'MR.GsmNcellCarrierRSSI':[0, 63],'MR.GsmNcellNcc':[0, 7],'MR.GsmNcellBcc':[0, 7]}
+    if len(smr_list) != len(value_list):
+        return False
+    for i in range(len(smr_list)):
+        if range_dict.__contains__(smr_list[i]) == False:
+            return False
+        if value_list[i].isdigit() == False:
+            continue
+        if int(value_list[i]) < range_dict[smr_list[i]][0] or int(value_list[i]) > range_dict[smr_list[i]][1]:
+            return False
+    return True
+
+def is_mrs_measurement_smr_value_correct(mr_name, smr_str, value_str):
+    smr_standard_dict = {'MR.RSRP':'MR.RSRP.00 MR.RSRP.01 MR.RSRP.02 MR.RSRP.03 MR.RSRP.04 MR.RSRP.05 MR.RSRP.06 MR.RSRP.07 MR.RSRP.08 MR.RSRP.09 MR.RSRP.10 MR.RSRP.11 MR.RSRP.12 MR.RSRP.13 MR.RSRP.14 MR.RSRP.15 MR.RSRP.16 MR.RSRP.17 MR.RSRP.18 MR.RSRP.19 MR.RSRP.20 MR.RSRP.21 MR.RSRP.22 MR.RSRP.23 MR.RSRP.24 MR.RSRP.25 MR.RSRP.26 MR.RSRP.27 MR.RSRP.28 MR.RSRP.29 MR.RSRP.30 MR.RSRP.31 MR.RSRP.32 MR.RSRP.33 MR.RSRP.34 MR.RSRP.35 MR.RSRP.36 MR.RSRP.37 MR.RSRP.38 MR.RSRP.39 MR.RSRP.40 MR.RSRP.41 MR.RSRP.42 MR.RSRP.43 MR.RSRP.44 MR.RSRP.45 MR.RSRP.46 MR.RSRP.47 ',\
+                         'MR.RSRQ':'MR.RSRQ.00 MR.RSRQ.01 MR.RSRQ.02 MR.RSRQ.03 MR.RSRQ.04 MR.RSRQ.05 MR.RSRQ.06 MR.RSRQ.07 MR.RSRQ.08 MR.RSRQ.09 MR.RSRQ.10 MR.RSRQ.11 MR.RSRQ.12 MR.RSRQ.13 MR.RSRQ.14 MR.RSRQ.15 MR.RSRQ.16 MR.RSRQ.17 ',\
+                         'MR.ReceivedIPower':'MR.ReceivedIPower.00 MR.ReceivedIPower.01 MR.ReceivedIPower.02 MR.ReceivedIPower.03 MR.ReceivedIPower.04 MR.ReceivedIPower.05 MR.ReceivedIPower.06 MR.ReceivedIPower.07 MR.ReceivedIPower.08 MR.ReceivedIPower.09 MR.ReceivedIPower.10 MR.ReceivedIPower.11 MR.ReceivedIPower.12 MR.ReceivedIPower.13 MR.ReceivedIPower.14 MR.ReceivedIPower.15 MR.ReceivedIPower.16 MR.ReceivedIPower.17 MR.ReceivedIPower.18 MR.ReceivedIPower.19 MR.ReceivedIPower.20 MR.ReceivedIPower.21 MR.ReceivedIPower.22 MR.ReceivedIPower.23 MR.ReceivedIPower.24 MR.ReceivedIPower.25 MR.ReceivedIPower.26 MR.ReceivedIPower.27 MR.ReceivedIPower.28 MR.ReceivedIPower.29 MR.ReceivedIPower.30 MR.ReceivedIPower.31 MR.ReceivedIPower.32 MR.ReceivedIPower.33 MR.ReceivedIPower.34 MR.ReceivedIPower.35 MR.ReceivedIPower.36 MR.ReceivedIPower.37 MR.ReceivedIPower.38 MR.ReceivedIPower.39 MR.ReceivedIPower.40 MR.ReceivedIPower.41 MR.ReceivedIPower.42 MR.ReceivedIPower.43 MR.ReceivedIPower.44 MR.ReceivedIPower.45 MR.ReceivedIPower.46 MR.ReceivedIPower.47 MR.ReceivedIPower.48 MR.ReceivedIPower.49 MR.ReceivedIPower.50 MR.ReceivedIPower.51 MR.ReceivedIPower.52 ',\
+                         'MR.RIPPRB':'MR.RIPPRB.00 MR.RIPPRB.01 MR.RIPPRB.02 MR.RIPPRB.03 MR.RIPPRB.04 MR.RIPPRB.05 MR.RIPPRB.06 MR.RIPPRB.07 MR.RIPPRB.08 MR.RIPPRB.09 MR.RIPPRB.10 MR.RIPPRB.11 MR.RIPPRB.12 MR.RIPPRB.13 MR.RIPPRB.14 MR.RIPPRB.15 MR.RIPPRB.16 MR.RIPPRB.17 MR.RIPPRB.18 MR.RIPPRB.19 MR.RIPPRB.20 MR.RIPPRB.21 MR.RIPPRB.22 MR.RIPPRB.23 MR.RIPPRB.24 MR.RIPPRB.25 MR.RIPPRB.26 MR.RIPPRB.27 MR.RIPPRB.28 MR.RIPPRB.29 MR.RIPPRB.30 MR.RIPPRB.31 MR.RIPPRB.32 MR.RIPPRB.33 MR.RIPPRB.34 MR.RIPPRB.35 MR.RIPPRB.36 MR.RIPPRB.37 MR.RIPPRB.38 MR.RIPPRB.39 MR.RIPPRB.40 MR.RIPPRB.41 MR.RIPPRB.42 MR.RIPPRB.43 MR.RIPPRB.44 MR.RIPPRB.45 MR.RIPPRB.46 MR.RIPPRB.47 MR.RIPPRB.48 MR.RIPPRB.49 MR.RIPPRB.50 MR.RIPPRB.51 MR.RIPPRB.52 ',\
+                         'MR.PowerHeadRoom':'MR.PowerHeadRoom.00 MR.PowerHeadRoom.01 MR.PowerHeadRoom.02 MR.PowerHeadRoom.03 MR.PowerHeadRoom.04 MR.PowerHeadRoom.05 MR.PowerHeadRoom.06 MR.PowerHeadRoom.07 MR.PowerHeadRoom.08 MR.PowerHeadRoom.09 MR.PowerHeadRoom.10 MR.PowerHeadRoom.11 MR.PowerHeadRoom.12 MR.PowerHeadRoom.13 MR.PowerHeadRoom.14 MR.PowerHeadRoom.15 MR.PowerHeadRoom.16 MR.PowerHeadRoom.17 MR.PowerHeadRoom.18 MR.PowerHeadRoom.19 MR.PowerHeadRoom.20 MR.PowerHeadRoom.21 MR.PowerHeadRoom.22 MR.PowerHeadRoom.23 MR.PowerHeadRoom.24 MR.PowerHeadRoom.25 MR.PowerHeadRoom.26 MR.PowerHeadRoom.27 MR.PowerHeadRoom.28 MR.PowerHeadRoom.29 MR.PowerHeadRoom.30 MR.PowerHeadRoom.31 MR.PowerHeadRoom.32 MR.PowerHeadRoom.33 MR.PowerHeadRoom.34 MR.PowerHeadRoom.35 MR.PowerHeadRoom.36 MR.PowerHeadRoom.37 MR.PowerHeadRoom.38 MR.PowerHeadRoom.39 MR.PowerHeadRoom.40 MR.PowerHeadRoom.41 MR.PowerHeadRoom.42 MR.PowerHeadRoom.43 MR.PowerHeadRoom.44 MR.PowerHeadRoom.45 MR.PowerHeadRoom.46 MR.PowerHeadRoom.47 MR.PowerHeadRoom.48 MR.PowerHeadRoom.49 MR.PowerHeadRoom.50 MR.PowerHeadRoom.51 MR.PowerHeadRoom.52 MR.PowerHeadRoom.53 MR.PowerHeadRoom.54 MR.PowerHeadRoom.55 MR.PowerHeadRoom.56 MR.PowerHeadRoom.57 MR.PowerHeadRoom.58 MR.PowerHeadRoom.59 MR.PowerHeadRoom.60 MR.PowerHeadRoom.61 MR.PowerHeadRoom.62 MR.PowerHeadRoom.63 '}
+    for mr_entity in smr_standard_dict:
+        if mr_entity == mr_name:
+            smr_standard_list = smr_standard_dict[mr_entity].strip().split(' ')
+            smr_list = smr_str.strip().split(' ')
+            value_list = value_str.strip().split(' ')
+            if len(smr_standard_list) != len(smr_list):
+                return False
+            if len(smr_list) != len(value_list):
+                return False

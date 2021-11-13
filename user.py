@@ -97,9 +97,7 @@ def test52_file_integrity():
                                 eci_id = int(object_entity.getAttribute('id').split(':')[0])
                                 cellid_ret_list = mr_utils.is_cell_id_exist(eci_id)
                                 if  cellid_ret_list[0] == False:
-                                    if output_temp_dict.__contains__(mrs_file_entity) == False:
-                                        output_temp_dict[mrs_file_entity] = []
-                                    output_temp_dict[mrs_file_entity].append('[%s]-[cellid:%d not in list] '%(mrName, cellid_ret_list[1]))
+                                    mr_utils.out_text_dict_append_list(output_temp_dict, mrs_file_entity, '[%s]-[cellid:%d not in list] '%(mrName, cellid_ret_list[1]))
                                 else:
                                     if cellid_ret_list[1] not in out_dict[mrs_file_entity][mr_name_entity]['list']:
                                         out_dict[mrs_file_entity][mr_name_entity]['num'] += 1
@@ -121,14 +119,10 @@ def test52_file_integrity():
                 file_object.write(str(cell_num) + " | ")
                 if (gl.MR_CONF['MeasureItems'] == 'all' or re.search(mr_name, gl.MR_CONF['MeasureItems']) != None) and cell_num_mrs_item != cell_num:
                     temp_flag_test = 1
-                    if output_temp_dict.__contains__(mrs_file_entity) == False:
-                        output_temp_dict[mrs_file_entity] = []
-                    output_temp_dict[mrs_file_entity].append('[%s]=<cell num not match>:[%d(mrs)]!=[%d(target)]'%(mr_name, cell_num_mrs_item, cell_num))
+                    mr_utils.out_text_dict_append_list(output_temp_dict, mrs_file_entity, '[%s]=<cell num not match>:[%d(mrs)]!=[%d(target)]'%(mr_name, cell_num_mrs_item, cell_num))
                 if mr_utils.is_mr_item_need_exist(mr_name) == False and cell_num_mrs_item != 0:
                     temp_flag_test = 1
-                    if output_temp_dict.__contains__(mrs_file_entity) == False:
-                        output_temp_dict[mrs_file_entity] = []
-                    output_temp_dict[mrs_file_entity].append('[{0}]=<MeasureItems not have {0}>:cellnum=[{1} ->target:0]'.format(mr_name, cell_num_mrs_item))
+                    mr_utils.out_text_dict_append_list(output_temp_dict, mrs_file_entity, '[{0}]=<MeasureItems not have {0}>:cellnum=[{1} ->target:0]'.format(mr_name, cell_num_mrs_item))
             file_object.write(str(temp_flag_test == 0))
             if output_temp_dict.__contains__(file_name) == True and len(output_temp_dict[file_name]) != 0:
                 file_object.write('\n===> error:\n')
@@ -168,9 +162,7 @@ def test53_file_integrity():
                         subfram_id = object_entity.getAttribute('id').split(':')[2]
                         test_count = 0
                         if subfram_dict[file_mrs_name].__contains__(str(cell_id_ret_list[1])) == False:
-                            if text_consistent.__contains__(file_mrs_name) == False:
-                                text_consistent[file_mrs_name] = []
-                            text_consistent[file_mrs_name].append('[MR.ReceivedIPower]:<cell_id[%d] not in list>'%(cell_id_ret_list[1]))
+                            mr_utils.out_text_dict_append_list(text_consistent, file_mrs_name, '[MR.ReceivedIPower]:<cell_id[%d] not in list>'%(cell_id_ret_list[1]))
                         else:
                             for subfram_key in subfram_dict[file_mrs_name][str(cell_id_ret_list[1])]:
                                 if subfram_key == subfram_id:
@@ -178,17 +170,13 @@ def test53_file_integrity():
                                     test_count = 1
                                     break
                             if test_count == 0:
-                                if text_consistent.__contains__(file_mrs_name) == False:
-                                    text_consistent[file_mrs_name] = []
-                                text_consistent[file_mrs_name].append('[MR.ReceivedIPower]:<surplus rip [cellid:%d]-[%s]>'%(cell_id_ret_list[1],subfram_id))
+                                mr_utils.out_text_dict_append_list(text_consistent, file_mrs_name, '[MR.ReceivedIPower]:<surplus rip [cellid:%d]-[%s]>'%(cell_id_ret_list[1],subfram_id))
                                 subfram_dict[file_mrs_name][str(cell_id_ret_list[1])]['consistent'] = 1
                     break
             for cell_id_entity in subfram_dict[file_mrs_name]:
                 for subfram_entity in gl.MR_CONF['SubFrameNum'].split(','):
                     if subfram_dict[file_mrs_name][cell_id_entity][subfram_entity] != 1 :
-                        if text_consistent.__contains__(file_mrs_name) == False:
-                            text_consistent[file_mrs_name] = []
-                        text_consistent[file_mrs_name].append('[MR.ReceivedIPower]:<confusion rip [cellid:%s]-[%s]>'%(cell_id_entity,subfram_entity))
+                        mr_utils.out_text_dict_append_list(text_consistent, file_mrs_name, '[MR.ReceivedIPower]:<confusion rip [cellid:%s]-[%s]>'%(cell_id_entity,subfram_entity))
                         subfram_dict[file_mrs_name][cell_id_entity]['consistent'] = 1
         except Exception as result:
             raise Exception('<%s> : [%s]'%(result, file_mrs_name))
@@ -244,9 +232,7 @@ def test54_file_integrity():
                         if re.search(rip, gl.MR_CONF['SubFrameNum']) != None and prb in prbnum_list:
                             mrs_ripprb_dict[file_name][str(cell_id_ret_list[1])].append(rip + ':' + prb)
                         else:
-                            if text_consistence.__contains__(file_name) == False:
-                                text_consistence[file_name] = []
-                            text_consistence[file_name].append('<ripprb not match>:[%s:%s]'%(rip,prb))
+                            mr_utils.out_text_dict_append_list(text_consistence, file_name, '<ripprb not match>:[%s:%s]'%(rip,prb))
                     break
         except Exception as result:
             raise Exception('<%s> : [%s]'%(result, file_name))
@@ -520,13 +506,9 @@ def test57_file_integrity():
             #判断mrs文件输出是否有问题
             for mrs_dict_key in out_mrs_flag_dict:
                 if out_mrs_flag_dict[mrs_dict_key] != 0 and mr_utils.is_mr_item_need_exist(mrs_dict_key) == True:
-                    if out_text_list.__contains__(file_name) == False:
-                        out_text_list[file_name] = []
-                    out_text_list[file_name].append('-[%s not match]' % (mrs_dict_key))
+                    mr_utils.out_text_dict_append_list(out_text_list, file_name, '-[%s not match]' % (mrs_dict_key))
                 elif out_mrs_flag_dict[mrs_dict_key] != 3 and mr_utils.is_mr_item_need_exist(mrs_dict_key) == False:
-                    if out_text_list.__contains__(file_name) == False:
-                        out_text_list[file_name] = []
-                    out_text_list[file_name].append('-[%s not match]' % (mrs_dict_key))
+                    mr_utils.out_text_dict_append_list(out_text_list, file_name, '-[%s not match]' % (mrs_dict_key))
             if out_text_list.__contains__(file_name) == True:
                 break
 
@@ -599,14 +581,10 @@ def test58_file_integrity():
                                 mr_utils.is_mr_item_need_exist('MR.LteScRSRQ') == False and\
                                 mr_utils.is_mr_item_need_exist('MR.LteScPHR') == False and\
                                 mr_utils.is_mr_item_need_exist('MR.LteScSinrUL') == False :
-                                if out_text_list.__contains__(mro_file) == False:
-                                    out_text_list[mro_file] = []
-                                out_text_list[mro_file].append('L3 data None')
+                                mr_utils.out_text_dict_append_list(out_text_list, mro_file, 'L3 data None')
                             if measurement_entity.getElementsByTagName('smr')[0].firstChild.data == 'MR.LteScRIP' and\
                                     mr_utils.is_mr_item_need_exist('MR.LteScRIP') == False:
-                                if out_text_list.__contains__(mro_file) == False:
-                                    out_text_list[mro_file] = []
-                                out_text_list[mro_file].append('L2 data None')
+                                mr_utils.out_text_dict_append_list(out_text_list, mro_file, 'L2 data None')
                             break
                         for smr_entity in measurement_entity.getElementsByTagName('smr'):
                             for object_entity in measurement_entity.getElementsByTagName('object'):
@@ -636,12 +614,8 @@ def test58_file_integrity():
                                                 time_spec = mr_utils.get_timestamp_by_str_format(object_entity.getAttribute('TimeStamp')) - mro_item_dict[object_ue_id][mr_name_entity]['TimeStamp']
                                                 if time_spec != int(gl.MR_CONF['SamplePeriod']):
                                                     temp_test_flag_dict[mr_name_entity] += 1
-                                                    if out_text_list.__contains__(mro_file) == False:
-                                                        out_text_list[mro_file] = []
-                                                    if time_spec == 0:
-                                                        out_text_list[mro_file].append('[{0}]= << TimeStamp duplicate >> TimeStamp:[{1}]\n'.format(mr_name_entity, object_entity.getAttribute('TimeStamp')))
-                                                    else:
-                                                        out_text_list[mro_file].append('[{0}]= << TimeStamp gap inaccurate >> TimeStamp:[{1}]\n'.format(mr_name_entity, object_entity.getAttribute('TimeStamp')))
+                                                    mr_utils.out_text_dict_append_list(out_text_list, mro_file, '[{0}]= << TimeStamp duplicate >> TimeStamp:[{1}]\n'.format(mr_name_entity, object_entity.getAttribute('TimeStamp')) \
+                                                            if time_spec == 0 else '[{0}]= << TimeStamp gap inaccurate >> TimeStamp:[{1}]\n'.format(mr_name_entity, object_entity.getAttribute('TimeStamp')))
                                                     temp_loop_flag = 1
                                                 #当出现时间间隔错误, 继续往下检索
                                                 mro_item_dict[object_ue_id][mr_name_entity]['TimeStamp'] = mr_utils.get_timestamp_by_str_format(object_entity.getAttribute('TimeStamp'))
@@ -659,14 +633,11 @@ def test58_file_integrity():
                                                 time_spec = mr_utils.get_timestamp_by_str_format(object_entity.getAttribute('TimeStamp')) - mro_item_dict[object_ue_id][mr_name_entity]['prbnum'][prbnum]['TimeStamp']
                                                 if time_spec != int(gl.MR_CONF['SamplePeriod']):
                                                     temp_test_flag_dict[mr_name_entity] += 1
-                                                    if out_text_list.__contains__(mro_file) == False:
-                                                        out_text_list[mro_file] = []
+
 
                                                     if len(out_text_list[mro_file]) == 0 or re.search(object_entity.getAttribute('TimeStamp'), out_text_list[mro_file][len(out_text_list[mro_file]) - 1]) == None:
-                                                        if time_spec == 0:
-                                                            out_text_list[mro_file].append('[{0}]=<TimeStamp duplicate> TimeStamp:{1}\n'.format(mr_name_entity, object_entity.getAttribute('TimeStamp')))
-                                                        else:
-                                                            out_text_list[mro_file].append('[{0}]=<TimeStamp gap inaccurate> TimeStamp:{1}\n'.format(mr_name_entity, object_entity.getAttribute('TimeStamp')))
+                                                        mr_utils.out_text_dict_append_list(out_text_list, mro_file, '[{0}]=<TimeStamp duplicate> TimeStamp:{1}\n'.format(mr_name_entity, object_entity.getAttribute('TimeStamp')) \
+                                                          if time_spec == 0 else   '[{0}]=<TimeStamp gap inaccurate> TimeStamp:{1}\n'.format(mr_name_entity, object_entity.getAttribute('TimeStamp')))
                                                     temp_loop_flag = 1
                                             mro_item_dict[object_ue_id][mr_name_entity]['prbnum'][prbnum]['TimeStamp'] = mr_utils.get_timestamp_by_str_format(object_entity.getAttribute('TimeStamp'))
 
@@ -682,9 +653,7 @@ def test58_file_integrity():
                                                 continue
                                             if value_num < mro_item_dict[object_ue_id][mr_name_entity]['range'][0] or value_num > mro_item_dict[object_ue_id][mr_name_entity]['range'][1]:
                                                 temp_test_flag_dict[mr_name_entity] += 1
-                                                if out_text_list.__contains__(mro_file) == False:
-                                                    out_text_list[mro_file] = []
-                                                out_text_list[mro_file].append('[' + mr_name_entity + ']={' + 'value Comfusion:' + str(value_num) + '=[' + str(mro_item_dict[object_ue_id][mr_name_entity]['range']) + ']'  + '}\n')
+                                                mr_utils.out_text_dict_append_list(out_text_list, mro_file, '[' + mr_name_entity + ']={' + 'value Comfusion:' + str(value_num) + '=[' + str(mro_item_dict[object_ue_id][mr_name_entity]['range']) + ']'  + '}\n')
                                                 temp_loop_flag = 1
                                                 value_temp_test = 1
                                             else:
@@ -814,9 +783,7 @@ def test59_file_integrity():
                 if temp_flag == 1:
                     for event_type in event_deal_list:
                         temp_mre_test_flag_dict[event_type] = 1
-                    if out_mre_text.__contains__(mre_file_name) == False:
-                        out_mre_text[mre_file_name] = []
-                    out_mre_text[mre_file_name].append('smr err:' + 'no smr lable' if len(smr_list) == 0 else smr_list[0].firstChild.data)
+                    mr_utils.out_text_dict_append_list(out_mre_text, mre_file_name, 'smr err:' + 'no smr lable' if len(smr_list) == 0 else smr_list[0].firstChild.data)
 
             if re.search(smr_str, mre_smr_head) == None:
                 mr_utils.get_mre_pos_list_by_mapping(mre_conf_dict, smr_str)
@@ -837,24 +804,20 @@ def test59_file_integrity():
 
                                     if value_num < mre_conf_dict[event_type]['range'][pos][0] or value_num > mre_conf_dict[event_type]['range'][pos][1]:
                                         temp_mre_test_flag_dict[event_type] += 1
-                                        if out_mre_text.__contains__(mre_file_name) == False:
-                                            out_mre_text[mre_file_name] = []
-                                        out_mre_text[mre_file_name].append('value confusion: << {0} = {1} ->({2},{3} )>> event-[{4}] TimeStamp:{5}\n'.format(mre_smr_list[pos],str(value_num), str(mre_conf_dict[event_type]['range'][pos][0]), str(mre_conf_dict[event_type]['range'][pos][1]), event_type, object_entity.getAttribute('TimeStamp')) )
+                                        mr_utils.out_text_dict_append_list(out_mre_text, mre_file_name, 'value confusion: << {0} = {1} ->({2},{3} )>> event-[{4}] TimeStamp:{5}\n'.\
+                                            format(mre_smr_list[pos],str(value_num),str(mre_conf_dict[event_type]['range'][pos][0]), \
+                                            str(mre_conf_dict[event_type]['range'][pos][1]), event_type, object_entity.getAttribute('TimeStamp')) )
                                         #print (event_type + '-' + object_entity.getAttribute('TimeStamp'))
                                         if pos not in mre_conf_dict[event_type]['error_pos_list']:
                                             mre_conf_dict[event_type]['error_pos_list'].append(pos)
                                 else:
                                     if value_entity.firstChild.data.split(' ')[pos] != 'NIL':
                                         temp_mre_test_flag_dict[event_type] += 1
-                                        if out_mre_text.__contains__(mre_file_name) == False:
-                                            out_mre_text[mre_file_name] = []
-                                        out_mre_text[mre_file_name].append('event format confusion(not NIL):[{0}] event:[{1}}] TimeStamp:[{2}]'.format(mre_smr_list[pos], event_type, object_entity.getAttribute('TimeStamp')))
+                                        mr_utils.out_text_dict_append_list(out_mre_text, mre_file_name, 'event format confusion(not NIL):[{0}] event:[{1}}] TimeStamp:[{2}]'.format(mre_smr_list[pos], event_type, object_entity.getAttribute('TimeStamp')))
                                         if pos not in mre_conf_dict[event_type]['error_pos_list']:
                                             mre_conf_dict[event_type]['error_pos_list'].append(pos)
                 if test_excess_flag == 0:
-                    if out_mre_text.__contains__(mre_file_name) == False:
-                         out_mre_text[mre_file_name] = []
-                    out_mre_text[mre_file_name].append('suplus event:{0} - TimeStamp:{1}\n'.format(object_entity.getAttribute('EventType'), object_entity.getAttribute('TimeStamp')))
+                    mr_utils.out_text_dict_append_list(out_mre_text, mre_file_name, 'suplus event:{0} - TimeStamp:{1}\n'.format(object_entity.getAttribute('EventType'), object_entity.getAttribute('TimeStamp')))
             with open(gl.OUT_PATH, 'a') as file_object:
                 file_object.write(date_time + " | ")
                 file_object.write(gl.TEST_CONF['test_total_time'] + " | " )
@@ -1048,6 +1011,7 @@ def test72_file_accuracy():
                     for measurement_entity in mr_root.getElementsByTagName('eNB')[0].getElementsByTagName('measurement'):
                         smr_value = measurement_entity.getElementsByTagName('smr')[0].firstChild.data
                         smr_value_list = smr_value.split(' ')
+
                         for i in range(len(smr_value_list)):
                             temp_flag = 0
                             for mr_item in measureItem_list:
@@ -1057,7 +1021,6 @@ def test72_file_accuracy():
                                     break
                             if temp_flag == 0:
                                 mr_utils.out_text_dict_append_list(out_text_dict, mr_file_full_name, 'surplus the mr_item : %s'%(smr_value_list[i]))
-
                         for object_entity in measurement_entity.getElementsByTagName('object'):
                             eci_id = int(object_entity.getAttribute('id').split(':')[0])
                             enb_id = eci_id >> 8 & 0xff
@@ -1079,10 +1042,22 @@ def test72_file_accuracy():
                                         test_flag |= (0x1 << 4)
                                         mr_utils.out_text_dict_append_list(out_text_dict, mr_file_full_name, 'MR.LteScRIP:<rip object_format error> %s ' % (object_entity.getAttribute('TimeStamp')))
                             else:
+
                                 if mr_utils.is_eci_correct(int(object_entity.getAttribute('id').split(':')[0])) == False :
                                     mr_utils.out_text_dict_append_list(out_text_dict, mr_file_full_name, '[L3] <eci_id not match> %s'% (object_entity.getAttribute('TimeStamp')))
                                     test_flag |= (0x1 << 3)
-                            #TODO:对value的判断
+                            temp_value_flag = 0
+
+                            for value_entity in object_entity.getElementsByTagName('v'):
+                                value_str = value_entity.firstChild.data
+                                if mr_utils.is_mr_value_correct(smr_value, value_str) == False:
+                                    mr_utils.out_text_dict_append_list(out_text_dict, mr_file_full_name, 'value not match')
+                                    test_flag |= (0x1 << 4)
+                                    temp_value_flag = 1
+                            if temp_value_flag == 0:
+                                for mr_entity in measureItem_list:
+                                    if mr_entity != 'MR.RSRP' or mr_entity != 'MR.RSRQ' or mr_entity != 'MR.ReceivedIPower' or mr_entity != 'MR.RIPPRB' or mr_entity != 'MR.PowerHeadRoom':
+                                        measureItem_list[mr_entity] += 1
 
                 else:
                     mr_doc = xml.dom.minidom.parse(mr_file_full_name)
@@ -1093,6 +1068,8 @@ def test72_file_accuracy():
                     mro_root = mro_doc.documentElement
                     earfcn_value = mro_root.getElementsByTagName('measurement')[0].getElementsByTagName('object')[0].getElementsByTagName('v')[0].firstChild.data.split(' ')[0] if \
                         len(mro_root.getElementsByTagName('measurement')[0].getElementsByTagName('object')) != 0 else '-1'
+
+                    #获得子帧分帧
                     prbnum_list = []
                     if re.search(r',', gl.MR_CONF['PrbNum']) == None:
                         for i in range(int(gl.MR_CONF['PrbNum'].split('....')[0]), 1 + int(gl.MR_CONF['PrbNum'].split('....')[1])):
@@ -1105,6 +1082,7 @@ def test72_file_accuracy():
                         if mr_utils.is_str_format_time(file_header_list[0].getAttribute(list_item_name), gl.TIME_FORMAT) == False:
                             mr_utils.out_text_dict_append_list(out_text_dict, mr_file_full_name, '%s format error'%(list_item_name))
                             test_flag |= (0x1 << 2)
+
                     if file_header_list[0].getAttribute('period') != gl.MR_CONF['UploadPeriod']:
                         mr_utils.out_text_dict_append_list(out_text_dict, mr_file_full_name, 'upload peroiod error :[0] !=  ' + file_header_list[0].getAttribute('period'))
                         test_flag |= (0x1 << 2)
@@ -1112,43 +1090,59 @@ def test72_file_accuracy():
                     if int(file_header_list[0].getAttribute('jobid')) < 0 or int(file_header_list[0].getAttribute('jobid')) > 4294967295 :
                         mr_utils.out_text_dict_append_list(out_text_dict, mr_file_full_name, 'jobid :[0-4294967295] !=  ' + file_header_list[0].getAttribute('jobid'))
                         test_flag |= (0x1 << 2)
+
                     for measurement_entity in mr_root.getElementsByTagName('eNB')[0].getElementsByTagName('measurement'):
                         mr_name = measurement_entity.getAttribute('mrName')
                         if measureItem_list.__contains__(mr_name) == True:
                             measureItem_list[mr_name] += 1
                         else:
                             mr_utils.out_text_dict_append_list(out_text_dict, mr_file_full_name, '<surplus mrItem> %s'%(mr_name))
+                        smr_value = measurement_entity.getElementsByTagName('smr')[0].firstChild.data
                         object_list = measurement_entity.getElementsByTagName('object')
-                        if mr_name == "MR.ReceivedIPower":
-                            if len(subfram_list) != len(object_list):
-                                mr_utils.string_to_list(out_text_dict, mr_file_full_name, "MR.ReceivedIPower:object format error:[%s]" % (str(subfram_list[0:len(subfram_list)])))
 
+                        if mr_name == "MR.ReceivedIPower":
+                            if len(subfram_list)*len(gl.TEST_CONF['cellid'].split(',')) != len(object_list):
+                                mr_utils.string_to_list(out_text_dict, mr_file_full_name, "MR.ReceivedIPower:object format error:[%s]" % (str(subfram_list[0:len(subfram_list)])))
                                 test_flag |= (0x1 << 2)
                             for object_entity in object_list:
-                                id_str = object_entity.getAttribute('id').split(':')
-                                if id_str[0] != str(cell_id) or (id_str[1] != earfcn_value and earfcn_value != '-1') or id_str[2] not in subfram_list:
-                                    if out_text_dict.__contains__(mr_file_full_name) == False:
-                                        out_text_dict[mr_file_full_name] = []
-                                    out_text_dict[mr_file_full_name].append("MR.ReceivedIPower:object format error:[%s:%s:%s]" % (str(cell_id) , earfcn_value,  str(subfram_list[0:len(subfram_list)])))
+                                id_str = object_entity.getAttribute('id')
+                                id_list = id_str.split(':')
+                                if mr_utils.is_eci_correct(int(id_list[0])) == False or (id_list[1] != earfcn_value and earfcn_value != '-1') or id_list[2] not in subfram_list:
+                                    mr_utils.out_text_dict_append_list(out_text_dict, mr_file_full_name,"MR.ReceivedIPower:object format error:[%s]"%(id_str))
                                     test_flag |= (0x1 << 4)
+
                         elif mr_name == 'MR.RIPPRB':
-                            if len(subfram_list)*len(prbnum_list) != len(object_list):
-                                if out_text_dict.__contains__(mr_file_full_name) == False:
-                                    out_text_dict[mr_file_full_name] = []
-                                out_text_dict[mr_file_full_name].append("MR.RIPPRB:object format error:[%s * %s]" % (str(subfram_list[0:len(subfram_list)]) , str(prbnum_list[0:len(prbnum_list)])))
+                            if len(subfram_list)*len(prbnum_list)*len(gl.TEST_CONF['cellid'].split(',')) != len(object_list):
+                                mr_utils.out_text_dict_append_list(out_text_dict, mr_file_full_name, "MR.RIPPRB:object format error:[%s * %s]" % (str(subfram_list[0:len(subfram_list)]) , str(prbnum_list[0:len(prbnum_list)])))
                                 test_flag |= (0x1 << 4)
                             for object_entity in object_list:
-                                if id_str[0] != str(cell_id) or (id_str[1] != earfcn_value and earfcn_value != '-1') or id_str[2] not in subfram_list or id_str[2] not in prbnum_list:
-                                    if out_text_dict.__contains__(mr_file_full_name) == False:
-                                        out_text_dict[mr_file_full_name] = []
-                                    out_text_dict[mr_file_full_name].append("MR.RIPPRB:object format error:[%s:%s:%s:%s]" % (str(cell_id) , earfcn_value,  str(subfram_list[0:len(subfram_list)]), str(prbnum_list[0:len(prbnum_list)])))
+                                id_str = object_entity.getAttribute('id')
+                                id_list = id_str.split(':')
+                                if mr_utils.is_eci_correct(int(id_list[0])) == False or (id_list[1] != earfcn_value and earfcn_value != '-1') or id_list[2] not in subfram_list or id_list[2] not in prbnum_list:
+                                    mr_utils.out_text_dict_append_list(out_text_dict, mr_file_full_name, "MR.RIPPRB:object format error:[%s]"%(id_str))
                                     test_flag |= (0x1 << 4)
                         else:
-                            if object_list[0].getAttribute('id') != str(cell_id):
-                                if out_text_dict.__contains__(mr_file_full_name) == False:
-                                    out_text_dict[mr_file_full_name] = []
-                                out_text_dict[mr_file_full_name].append("%s %s" % (mr_name, str(cell_id)))
+                            if len(object_list) != len(gl.TEST_CONF['cellid'].split(',')):
+                                mr_utils.out_text_dict_append_list(out_text_dict, mr_file_full_name, '%s: object format error [num not match] - [%d]'%(mr_name,len(object_list)))
                                 test_flag |= (0x1 << 4)
+                            for object_entity in object_list:
+                                id_str = object_entity.getAttribute('id')
+                                id_list = id_str.split(':')
+                                if mr_utils.is_eci_correct(int(id_list[0])) == False:
+                                    mr_utils.out_text_dict_append_list(out_text_dict, mr_file_full_name, '%s <object id not match > %s'%(mr_name, id_str))
+                                    test_flag |= (0x1 << 4)
+                        temp_value_flag = 0
+
+                        for object_entity in object_list:
+                            for value_entity in object_entity.getElementsByTagName('v'):
+                                value_str = value_entity.firstChild.data
+                                if mr_utils.is_mrs_measurement_smr_value_correct(mr_name, smr_value, value_str) == False:
+                                    mr_utils.out_text_dict_append_list(out_text_dict, mr_file_full_name, '<smr or value not match> \n--->smr:%s \n---> value:%s'%(smr_value, value_str))
+                                    test_flag |= (0x1 << 4)
+                                    temp_value_flag = 1
+                        if temp_value_flag == 0:
+                            measureItem_list[mr_name] += 1
+
         except Exception as result:
             raise Exception('<%s> MRO:%s MRE:%s MRS:%s'%(result, gl.MR_DICT[time_str][0]['MRO'], gl.MR_DICT[time_str][0]['MRE'], gl.MR_DICT[time_str][0]['MRS']))
 
@@ -1172,35 +1166,31 @@ def test73_file_accuracy():
 
     mro_file_list = glob.glob(gl.MR_TEST_PATH + '*MRO*.xml')
     max_mro_object_num = math.ceil( (int(gl.MR_CONF['UploadPeriod']) * 60 * 1000) / float(int(gl.MR_CONF['SamplePeriod'])))
-    #print (int(MR_CONF['UploadPeriod']))
-    #print (int(MR_CONF['SamplePeriod']))
-    #print (max_mro_object_num)
     mro_file_flag_dict = {}
     out_text_dict = {}
     for mro_file in mro_file_list:
-        mro_dom = xml.dom.minidom.parse(mro_file)
-        mro_root = mro_dom.documentElement
-        time_stamp_tmep = 0
-        if mro_file_flag_dict.__contains__(mro_file) == False:
-            mro_file_flag_dict[mro_file] = {}
-        for measurement_entity in mro_root.getElementsByTagName('measurement'):
-            if measurement_entity.getElementsByTagName('smr')[0].firstChild.data.split(' ')[0] != 'MR.LteScEarfcn':
-                continue
-            for object_entity in measurement_entity.getElementsByTagName('object'):
-                ue_mme_name = object_entity.getAttribute('MmeUeS1apId') + '|' + object_entity.getAttribute('MmeGroupId') + '|' + object_entity.getAttribute('MmeCode')
-                if mro_file_flag_dict[mro_file].__contains__(ue_mme_name) == False:
-                    mro_file_flag_dict[mro_file][ue_mme_name] = {'mro_object_num':0, 'is_ascend':0}
-                if time_stamp_tmep != 0:
-                    time_spec = mr_utils.get_timestamp_by_str_format(object_entity.getAttribute('TimeStamp')) - time_stamp_tmep
-                    if time_spec != int(gl.MR_CONF['SamplePeriod']):
-                        mro_file_flag_dict[mro_file][ue_mme_name]['is_ascend'] = 1
-                        if out_text_dict.__contains__(mro_file) == False:
-                            out_text_dict[mro_file] = []
-                        out_text_dict[mro_file].append("time spec: [%d]-[%d]=[%d] - [%d] "%(mr_utils.get_timestamp_by_str_format(object_entity.getAttribute('TimeStamp')), time_stamp_tmep, time_spec, int(gl.MR_CONF['SamplePeriod'])))
-                time_stamp_tmep = mr_utils.get_timestamp_by_str_format(object_entity.getAttribute('TimeStamp'))
-                mro_file_flag_dict[mro_file][ue_mme_name]['mro_object_num'] += 1
-
-
+        try:
+            mro_dom = xml.dom.minidom.parse(mro_file)
+            mro_root = mro_dom.documentElement
+            time_stamp_tmep = 0
+            if mro_file_flag_dict.__contains__(mro_file) == False:
+                mro_file_flag_dict[mro_file] = {}
+            for measurement_entity in mro_root.getElementsByTagName('measurement'):
+                if measurement_entity.getElementsByTagName('smr')[0].firstChild.data.split(' ')[0] == 'MR.LteScRIP' :
+                    continue
+                for object_entity in measurement_entity.getElementsByTagName('object'):
+                    ue_mme_name = object_entity.getAttribute('MmeUeS1apId') + '|' + object_entity.getAttribute('MmeGroupId') + '|' + object_entity.getAttribute('MmeCode')
+                    if mro_file_flag_dict[mro_file].__contains__(ue_mme_name) == False:
+                        mro_file_flag_dict[mro_file][ue_mme_name] = {'mro_object_num':0, 'is_ascend':0}
+                    if time_stamp_tmep != 0:
+                        time_spec = mr_utils.get_timestamp_by_str_format(object_entity.getAttribute('TimeStamp')) - time_stamp_tmep
+                        if time_spec != int(gl.MR_CONF['SamplePeriod']):
+                            mro_file_flag_dict[mro_file][ue_mme_name]['is_ascend'] = 1
+                            mr_utils.out_text_dict_append_list(out_text_dict, mro_file, "time spec: [%d]-[%d]=[%d] - [%d] "%(mr_utils.get_timestamp_by_str_format(object_entity.getAttribute('TimeStamp')), time_stamp_tmep, time_spec, int(gl.MR_CONF['SamplePeriod'])))
+                    time_stamp_tmep = mr_utils.get_timestamp_by_str_format(object_entity.getAttribute('TimeStamp'))
+                    mro_file_flag_dict[mro_file][ue_mme_name]['mro_object_num'] += 1
+        except Exception as result:
+            raise Exception('%s <%s>'%(mro_file, result))
 
     with open(gl.OUT_PATH, 'a') as file_object:
         file_object.write(date_time + " | ")
@@ -1229,106 +1219,105 @@ def test_add_timestamp_number():
     smr_l3_str = 'MR.LteScEarfcn MR.LteScPci MR.LteScRSRP MR.LteScRSRQ MR.LteScPHR MR.LteScSinrUL MR.LteNcEarfcn MR.LteNcPci MR.LteNcRSRP MR.LteNcRSRQ'
     smr_rip_str = 'MR.LteScRIP'
     for mro_file in mro_file_list:
-        mro_doc = xml.dom.minidom.parse(mro_file)
-        mro_root = mro_doc.documentElement
-        timestamp_dict = {'l3': {'num':0, 'time_str':[], 'time_stamp':[]}, 'l2':{'num':0, 'time_str':[], 'time_stamp':[]}}
-        l3_timestamp_temp = 0
-        l2_timestamp_temp = 0
+        try:
+            mro_doc = xml.dom.minidom.parse(mro_file)
+            mro_root = mro_doc.documentElement
+            timestamp_dict = {'l3': {}, 'l2':{}}
+            l3_timestamp_temp = 0
+            l2_timestamp_temp = 0
 
-        for enb_entity in mro_root.getElementsByTagName('eNB'):
-            start_time_stamp = mr_utils.get_timestamp_by_str_format(mro_root.getElementsByTagName('fileHeader')[0].getAttribute('startTime')) + int(gl.MR_CONF['SamplePeriod'])
-            #print (time.strftime("%Y:%m:%d %H:%M:%S", time.localtime(int(start_time_stamp/1000))))
-            end_time_stamp = mr_utils.get_timestamp_by_str_format(mro_root.getElementsByTagName('fileHeader')[0].getAttribute('endTime'))
-            measurement_list = enb_entity.getElementsByTagName('measurement')
-            if len(measurement_list) != 2 :
-                continue
-            l3_smr_list = measurement_list[0].getElementsByTagName('smr')
-            l3_object_list = measurement_list[0].getElementsByTagName('object')
-            l2_smr_list = measurement_list[1].getElementsByTagName('smr')
-            l2_object_list = measurement_list[1].getElementsByTagName('object')
-            if len(l3_smr_list) != 1 or len(l3_object_list) == 0 or len(l2_smr_list) != 1 or len(l2_object_list) == 0:
-                continue
-            if re.search(smr_l3_str, l3_smr_list[0].firstChild.data) == None:
-                continue
-            if re.search(smr_rip_str, l2_smr_list[0].firstChild.data) == None:
-                continue
-            for l3_object_entity in l3_object_list:
+            for enb_entity in mro_root.getElementsByTagName('eNB'):
+                start_time_stamp = mr_utils.get_timestamp_by_str_format(mro_root.getElementsByTagName('fileHeader')[0].getAttribute('startTime')) + int(gl.MR_CONF['SamplePeriod'])
 
-                time_str = l3_object_entity.getAttribute('TimeStamp')
-                time_stamp = mr_utils.get_timestamp_by_str_format(time_str)
+                end_time_stamp = mr_utils.get_timestamp_by_str_format(mro_root.getElementsByTagName('fileHeader')[0].getAttribute('endTime'))
+                measurement_list = enb_entity.getElementsByTagName('measurement')
+                if len(measurement_list) != 2 :
+                    continue
+                l3_smr_list = measurement_list[0].getElementsByTagName('smr')
+                l3_object_list = measurement_list[0].getElementsByTagName('object')
+                l2_smr_list = measurement_list[1].getElementsByTagName('smr')
+                l2_object_list = measurement_list[1].getElementsByTagName('object')
+                if len(l3_smr_list) != 1 or len(l3_object_list) == 0 or len(l2_smr_list) != 1 or len(l2_object_list) == 0:
+                    continue
+                if re.search(smr_l3_str, l3_smr_list[0].firstChild.data) == None:
+                    continue
+                if re.search(smr_rip_str, l2_smr_list[0].firstChild.data) == None:
+                    continue
+                for l3_object_entity in l3_object_list:
+                    cell_id_ret_list = mr_utils.is_cell_id_exist(int(l3_object_entity.getAttribute('id').split(':')[0]))
+                    cell_id = str(cell_id_ret_list[1])
+                    if timestamp_dict['l3'].__contains__(cell_id) == False:
+                        timestamp_dict['l3'][cell_id] = {'num':0, 'time_str':[], 'time_stamp':[]}
 
-                if l3_timestamp_temp != time_stamp:
-                    timestamp_dict['l3']['num'] += 1
-                    l3_timestamp_temp = time_stamp
-                    timestamp_dict['l3']['time_str'].append(time_str)
-                    timestamp_dict['l3']['time_stamp'].append(time_stamp)
+                    time_str = l3_object_entity.getAttribute('TimeStamp')
+                    time_stamp = mr_utils.get_timestamp_by_str_format(time_str)
 
-            for l2_object_entity in l2_object_list:
-                time_str = l2_object_entity.getAttribute('TimeStamp')
-                time_stamp = mr_utils.get_timestamp_by_str_format(time_str)
+                    if l3_timestamp_temp != time_stamp:
+                        timestamp_dict['l3'][cell_id]['num'] += 1
+                        l3_timestamp_temp = time_stamp
+                        timestamp_dict['l3'][cell_id]['time_str'].append(time_str)
+                        timestamp_dict['l3'][cell_id]['time_stamp'].append(time_stamp)
 
-                if l2_timestamp_temp != time_stamp:
-                    timestamp_dict['l2']['num'] += 1
-                    l2_timestamp_temp = time_stamp
-                    timestamp_dict['l2']['time_str'].append(time_str)
-                    timestamp_dict['l2']['time_stamp'].append(time_stamp)
+                for l2_object_entity in l2_object_list:
+                    cell_id_ret_list = mr_utils.is_cell_id_exist(int(l2_object_entity.getAttribute('id').split(':')[0]))
+                    cell_id = str(cell_id_ret_list[1])
+                    if timestamp_dict['l2'].__contains__(cell_id) == False:
+                        timestamp_dict['l2'][cell_id] = {'num':0, 'time_str':[], 'time_stamp':[]}
+                    time_str = l2_object_entity.getAttribute('TimeStamp')
+                    time_stamp = mr_utils.get_timestamp_by_str_format(time_str)
 
+                    if l2_timestamp_temp != time_stamp:
+                        timestamp_dict['l2'][cell_id]['num'] += 1
+                        l2_timestamp_temp = time_stamp
+                        timestamp_dict['l2'][cell_id]['time_str'].append(time_str)
+                        timestamp_dict['l2'][cell_id]['time_stamp'].append(time_stamp)
+                for cell_id in timestamp_dict['l2'] if len(timestamp_dict['l2']) >= len(timestamp_dict['l3']) else timestamp_dict['l3']:
+                    if timestamp_dict['l2'].__contains__(cell_id) == True and timestamp_dict['l3'].__contains__(cell_id) == True:
+                        if timestamp_dict['l2'][cell_id]['num'] != timestamp_dict['l3'][cell_id]['num']:
+                            mr_utils.out_text_dict_append_list(out_text_dict, mro_file, '[cellid:%s] object_num : [l3]-%d != [l2]-%d \n'%(cell_id, timestamp_dict['l3'][cell_id]['num'], timestamp_dict['l2'][cell_id]['num']))
 
+                for l_entity in out_list:
+                    for cell_id in timestamp_dict[l_entity]:
+                        if timestamp_dict[l_entity][cell_id]['time_stamp'][0] != start_time_stamp:
+                            mr_utils.out_text_dict_append_list(out_text_dict, mro_file, '[%s] <%s startTimeStamp not match>: %s(start) != %s(first) \n'%(cell_id,l_entity,\
+                                mr_utils.get_time_format_by_timestamp(start_time_stamp),\
+                                timestamp_dict[l_entity]['time_str'][0]))
+                        if timestamp_dict[l_entity][cell_id]['time_stamp'][len(timestamp_dict[l_entity][cell_id]['time_stamp']) - 1] != end_time_stamp:
+                            mr_utils.out_text_dict_append_list(out_text_dict, mro_file, '[%s] <%s endTimeStamp not match>: %s(end) != %s(last) \n'%(cell_id,l_entity,\
+                                mro_root.getElementsByTagName('fileHeader')[0].getAttribute('endTime'),\
+                                timestamp_dict[l_entity]['time_str'][len(timestamp_dict[l_entity]['time_stamp']) - 1]))
+                for cell_id in timestamp_dict['l2'] if len(timestamp_dict['l2']) >= len(timestamp_dict['l3']) else timestamp_dict['l3']:
+                    if timestamp_dict['l2'].__contains__(cell_id) == True and timestamp_dict['l3'].__contains__(cell_id) == True:
+                        l3_index = 0
+                        l2_index = 0
+                        suplus_temp = 0
+                        for i in range(0, timestamp_dict['l3'][cell_id]['num'] if timestamp_dict['l3'][cell_id]['num'] >= timestamp_dict['l2'][cell_id]['num'] else timestamp_dict['l2'][cell_id]['num'] ):
+                            if l2_index > timestamp_dict['l2'][cell_id]['num']-1:
+                                l2_index = timestamp_dict['l2'][cell_id]['num']-1
+                                suplus_temp += 1
+                            if l3_index > timestamp_dict['l3'][cell_id]['num']-1:
+                                l3_index = timestamp_dict['l3'][cell_id]['num']-1
+                                suplus_temp += 1
+                            if suplus_temp > 3:
+                                if l3_index == timestamp_dict['l3'][cell_id]['num']-1 and l2_index != timestamp_dict['l2'][cell_id]['num']-1:
+                                    mr_utils.out_text_dict_append_list(out_text_dict, mro_file, '[{4}]<l3 lost part of data>: num:[l3={0}]--[l2={1}] TimeStamp:[l3={2}--l2={3}]'.format(timestamp_dict['l3'][cell_id]['num']-1,\
+                                                                                timestamp_dict['l2'][cell_id]['num']-1, timestamp_dict['l3'][cell_id]['time_str'][l3_index], timestamp_dict['l2'][cell_id]['time_str'][len(timestamp_dict['l2'][cell_id]['time_str']) - 1], cell_id))
+                                elif l3_index != timestamp_dict['l3'][cell_id]['num']-1 and l2_index == timestamp_dict['l2'][cell_id]['num']-1:
+                                    mr_utils.out_text_dict_append_list(out_text_dict, mro_file,'[{4}]<l2 lost part of data: num>:[l3={0}]--[l2={1}] TimeStamp:[l3={2}--l2={3}]'.format(timestamp_dict['l3'][cell_id]['num']-1,\
+                                                                                timestamp_dict['l2'][cell_id]['num']-1, timestamp_dict['l3'][cell_id]['time_str'][len(timestamp_dict['l3'][cell_id]['time_str']) - 1], timestamp_dict['l2'][cell_id]['time_str'][l2_index], cell_id))
+                                break
 
-            if timestamp_dict['l2']['num'] != timestamp_dict['l3']['num']:
-                if out_text_dict.__contains__(mro_file) == False:
-                    out_text_dict[mro_file] = []
-                out_text_dict[mro_file].append('object_num : [l3]-%d != [l2]-%d \n'%(timestamp_dict['l3']['num'], timestamp_dict['l2']['num']))
-            for l_entity in out_list:
-                if timestamp_dict[l_entity]['time_stamp'][0] != start_time_stamp:
-                    if out_text_dict.__contains__(mro_file) == False:
-                            out_text_dict[mro_file] = []
-                    out_text_dict[mro_file].append( '<%s startTimeStamp not match>: %s(start) != %s(first) \n'%(l_entity,\
-                        mr_utils.get_time_format_by_timestamp(start_time_stamp),\
-                        timestamp_dict[l_entity]['time_str'][0]))
-                if timestamp_dict[l_entity]['time_stamp'][len(timestamp_dict[l_entity]['time_stamp']) - 1] != end_time_stamp:
-                    if out_text_dict.__contains__(mro_file) == False:
-                            out_text_dict[mro_file] = []
-                    out_text_dict[mro_file].append(  '<%s endTimeStamp not match>: %s(end) != %s(last) \n'%(l_entity,\
-                        mro_root.getElementsByTagName('fileHeader')[0].getAttribute('endTime'),\
-                        timestamp_dict[l_entity]['time_str'][len(timestamp_dict[l_entity]['time_stamp']) - 1]))
-            l3_index = 0
-            l2_index = 0
-            suplus_temp = 0
-            for i in range(0, timestamp_dict['l3']['num'] if timestamp_dict['l3']['num'] >= timestamp_dict['l2']['num'] else timestamp_dict['l2']['num'] ):
-                if l2_index > timestamp_dict['l2']['num']-1:
-                    l2_index = timestamp_dict['l2']['num']-1
-                    suplus_temp += 1
-                if l3_index > timestamp_dict['l3']['num']-1:
-                    l3_index = timestamp_dict['l3']['num']-1
-                    suplus_temp += 1
-                if suplus_temp > 3:
-                    if out_text_dict.__contains__(mro_file) == False:
-                        out_text_dict[mro_file] = []
-                    if l3_index == timestamp_dict['l3']['num']-1 and l2_index != timestamp_dict['l2']['num']-1:
-                        out_text_dict[mro_file].append('<l3 lost part of data>: num:[l3={0}]--[l2={1}] TimeStamp:[l3={2}--l2={3}]'.format(timestamp_dict['l3']['num']-1,\
-                                                                timestamp_dict['l2']['num']-1, timestamp_dict['l3']['time_str'][l3_index], timestamp_dict['l2']['time_str'][len(timestamp_dict['l2']['time_str']) - 1]))
-                    elif l3_index != timestamp_dict['l3']['num']-1 and l2_index == timestamp_dict['l2']['num']-1:
-                        out_text_dict[mro_file].append('<l2 lost part of data: num>:[l3={0}]--[l2={1}] TimeStamp:[l3={2}--l2={3}]'.format(timestamp_dict['l3']['num']-1,\
-                                                                timestamp_dict['l2']['num']-1, timestamp_dict['l3']['time_str'][len(timestamp_dict['l3']['time_str']) - 1], timestamp_dict['l2']['time_str'][l2_index]))
-
-                    break
-
-
-                if timestamp_dict['l3']['time_stamp'][l3_index] == timestamp_dict['l2']['time_stamp'][l2_index]:
-                    l2_index += 1
-                    l3_index += 1
-                elif timestamp_dict['l3']['time_stamp'][l3_index] < timestamp_dict['l2']['time_stamp'][l2_index]:
-                    if out_text_dict.__contains__(mro_file) == False:
-                        out_text_dict[mro_file] = []
-                    out_text_dict[mro_file].append('<timestamp not match>: [l3]-[%d]-%s < [l2]-[%d]-%s \n'%(l3_index,timestamp_dict['l3']['time_str'][l3_index], l3_index,timestamp_dict['l2']['time_str'][l2_index] ))
-                    l3_index += 1
-
-                elif timestamp_dict['l3']['time_stamp'][l3_index] > timestamp_dict['l2']['time_stamp'][l2_index]:
-                    if out_text_dict.__contains__(mro_file) == False:
-                        out_text_dict[mro_file] = []
-                    out_text_dict[mro_file].append('<timestamp not match>: [l3]-[%d]-%s > [l2]-[%d]-%s \n'%(l3_index,timestamp_dict['l3']['time_str'][l3_index], l3_index,timestamp_dict['l2']['time_str'][l2_index] ))
-                    l2_index += 1
+                            if timestamp_dict['l3'][cell_id]['time_stamp'][l3_index] == timestamp_dict['l2'][cell_id]['time_stamp'][l2_index]:
+                                l2_index += 1
+                                l3_index += 1
+                            elif timestamp_dict['l3'][cell_id]['time_stamp'][l3_index] < timestamp_dict['l2'][cell_id]['time_stamp'][l2_index]:
+                                mr_utils.out_text_dict_append_list(out_text_dict, mro_file, '[%s] <timestamp not match>: [l3]-[%d]-%s < [l2]-[%d]-%s \n'%(cell_id,l3_index,timestamp_dict['l3']['time_str'][l3_index], l3_index,timestamp_dict['l2']['time_str'][l2_index] ))
+                                l3_index += 1
+                            elif timestamp_dict['l3'][cell_id]['time_stamp'][l3_index] > timestamp_dict['l2'][cell_id]['time_stamp'][l2_index]:
+                                mr_utils.out_text_dict_append_list(out_text_dict, mro_file, '[%s] <timestamp not match>: [l3]-[%d]-%s > [l2]-[%d]-%s \n'%(cell_id,l3_index,timestamp_dict['l3']['time_str'][l3_index], l3_index,timestamp_dict['l2']['time_str'][l2_index] ))
+                                l2_index += 1
+        except Exception as result:
+            raise Exception('%s <%s>'%(mro_file, result))
 
     with open(gl.OUT_PATH, 'a') as file_object:
         file_object.write('test ok\n')
@@ -1358,17 +1347,16 @@ def test_add_mro_s_mapping():
         rsrq_range_list.append(i)
     for i in range(64):
         phr_range_list.append(i)
-    for i in range(1, 37):
+    for i in range(0, 37):
         sinrul_range_list.append(i)
 
-    for i in range(1, 512, 10):
+    for i in range(0, 521, 10):
         rip_range_list.append(i)
 
     out_mro_list = ['MR.LteScRSRP','MR.LteScRSRQ','MR.LteScPHR','MR.LteScSinrUL']
     out_text_list = {}
     for time_entity in gl.MR_DICT:
-        mro_file_name = gl.MR_DICT[time_entity][0]['MRO']
-        mrs_file_name = gl.MR_DICT[time_entity][0]['MRO']
+
 
         cellid_item_dict = {'MR.LteScRSRP':{'pos':2, 'TimeStamp':0, 'range':[0, 97], 'flag':3, 'num':0}, 'MR.LteScRSRQ':{'pos':3, 'TimeStamp':0, 'range':[0,34],'flag':3, 'num':0},\
                                'MR.LteScPHR':{'pos':4, 'TimeStamp':0, 'range':[0,63],'flag':3, 'num':0}, 'MR.LteScSinrUL':{'pos':5, 'TimeStamp':0, 'range':[0,36],'flag':3, 'num':0}, \
@@ -1379,89 +1367,104 @@ def test_add_mro_s_mapping():
                            'MR.LteScPHR':phr_range_list,
                            'MR.LteScSinrUL':sinrul_range_list,
                            'MR.LteScRIP':rip_range_list}
+        try:
 
+            temp_loop_flag = 0
+            is_object_empty = 0
+            mro_item_dict = {}
+            temp_test_flag_dict = {'MR.LteScRSRP':0,'MR.LteScRSRQ':0,'MR.LteScPHR':0,'MR.LteScSinrUL':0,'MR.LteScRIP':0, 'MR.LteNcRSRP':0, 'MR.LteNcRSRQ':0}
+            mro_measurement_list = []
+            mrs_measurement_list = []
+            if re.search(r'MRO', gl.MR_CONF['MeasureType']) != None:
+                mro_file_name = gl.MR_DICT[time_entity][0]['MRO']
+                mro_dom = xml.dom.minidom.parse(mro_file_name)
+                mro_root = mro_dom.documentElement
+                mro_measurement_list = mro_root.getElementsByTagName('measurement')
+            if re.search(r'MRS', gl.MR_CONF['MeasureType']) != None:
+                mrs_file_name = gl.MR_DICT[time_entity][0]['MRS']
+                mrs_dom = xml.dom.minidom.parse(mrs_file_name)
+                mrs_root = mrs_dom.documentElement
+                mrs_measurement_list = mrs_root.getElementsByTagName('measurement')
 
-        temp_loop_flag = 0
-        is_object_empty = 0
-        mro_item_dict = {}
-        temp_test_flag_dict = {'MR.LteScRSRP':0,'MR.LteScRSRQ':0,'MR.LteScPHR':0,'MR.LteScSinrUL':0,'MR.LteScRIP':0, 'MR.LteNcRSRP':0, 'MR.LteNcRSRQ':0}
-        mro_dom = xml.dom.minidom.parse(mro_file_name)
-        mro_root = mro_dom.documentElement
-        for measurement_entity in mro_root.getElementsByTagName('measurement'):
-            if len(measurement_entity.getElementsByTagName('object')) == 0:
-                is_object_empty = 1
-                break
-            for smr_entity in measurement_entity.getElementsByTagName('smr'):
-                for object_entity in measurement_entity.getElementsByTagName('object'):
-                    object_ue_id = object_entity.getAttribute('id').split(':')[0]
-                    if mro_item_dict.__contains__(object_ue_id) == False :
-                        mro_item_dict[object_ue_id] = {'MR.LteScRSRP':{'pos':2, 'mrs_item':'MR.RSRP', 'range':[0, 97], 'flag':3, 'num':0, 'item_num':{}}, 'MR.LteScRSRQ':{'pos':3, 'mrs_item':'MR.RSRQ', 'range':[0,34],'flag':3, 'num':0, 'item_num':{}},\
-                           'MR.LteScPHR':{'pos':4, 'mrs_item':'MR.PowerHeadRoom', 'range':[0,63],'flag':3, 'num':0, 'item_num':{}}, 'MR.LteScSinrUL':{'pos':5, 'mrs_item':'MR.SinrUL', 'range':[0,36],'flag':3, 'num':0, 'item_num':{}}, \
-                           'MR.LteScRIP':{'pos':0, 'mrs_item':'MR.ReceivedIPower', 'range':[0,511], 'flag':3,'num':0, 'prbnum':{'item_num':{}}}, 'MR.LteNcRSRP':{'pos':8, 'mrs_item':0, 'range':[0,97],'flag':3, 'num':0, 'item_num':{}},\
-                        'MR.LteNcRSRQ':{'pos':9, 'mrs_item':0, 'range':[0,34], 'flag':3, 'num':0, 'item_num':{} } }
-                    for mr_name_entity in mro_item_dict[object_ue_id]:
-                        #mr_Name匹配上, flag-1
-                        if re.search(mr_name_entity, smr_entity.firstChild.data) == None:
-                            continue
-                        if mr_name_entity == smr_entity.firstChild.data.split(' ')[mro_item_dict[object_ue_id][mr_name_entity]['pos']]:
-                            if mr_name_entity != 'MR.LteScRIP':
-                                #TODO: 得到value, 然后对应的加上
-                                if len(object_entity.getElementsByTagName('v')) != 0:
-                                    value_str = object_entity.getElementsByTagName('v')[0].firstChild.data.split(' ')[mro_item_dict[object_ue_id][mr_name_entity]['pos']]
-                                    if value_str.isdigit() == True:
-                                        value = int(value_str)
-                                        for idx in range(len(item_range_list[mr_name_entity])):
-                                            if mro_item_dict[object_ue_id][mr_name_entity].__contains__('item_num') == False:
-                                                continue
-                                            if mro_item_dict[object_ue_id][mr_name_entity]['item_num'].__contains__(idx) == False:
-                                                mro_item_dict[object_ue_id][mr_name_entity]['item_num'][idx] = 0
-                                            if value <= item_range_list[mr_name_entity][idx]:
-                                                mro_item_dict[object_ue_id][mr_name_entity]['item_num'][idx] += 1
-                                                break
+            for measurement_entity in mro_measurement_list:
+                if len(measurement_entity.getElementsByTagName('object')) == 0:
+                    is_object_empty = 1
+                    continue
+                for smr_entity in measurement_entity.getElementsByTagName('smr'):
+                    for object_entity in measurement_entity.getElementsByTagName('object'):
+                        object_ue_id = object_entity.getAttribute('id').split(':')[0]
+                        if mro_item_dict.__contains__(object_ue_id) == False :
+                            mro_item_dict[object_ue_id] = {'MR.LteScRSRP':{'pos':2, 'mrs_item':'MR.RSRP', 'range':[0, 97], 'flag':3, 'num':0, 'item_num':{}}, 'MR.LteScRSRQ':{'pos':3, 'mrs_item':'MR.RSRQ', 'range':[0,34],'flag':3, 'num':0, 'item_num':{}},\
+                               'MR.LteScPHR':{'pos':4, 'mrs_item':'MR.PowerHeadRoom', 'range':[0,63],'flag':3, 'num':0, 'item_num':{}}, 'MR.LteScSinrUL':{'pos':5, 'mrs_item':'MR.SinrUL', 'range':[0,36],'flag':3, 'num':0, 'item_num':{}}, \
+                               'MR.LteScRIP':{'pos':0, 'mrs_item':'MR.ReceivedIPower', 'range':[0,511], 'flag':3,'num':0, 'prbnum':{'item_num':{}}}, 'MR.LteNcRSRP':{'pos':8, 'mrs_item':0, 'range':[0,97],'flag':3, 'num':0, 'item_num':{}},\
+                            'MR.LteNcRSRQ':{'pos':9, 'mrs_item':0, 'range':[0,34], 'flag':3, 'num':0, 'item_num':{} } }
+                            mr_utils.get_mro_pos_list_by_mapping(mro_item_dict[object_ue_id], smr_entity.firstChild.data)
+                        for mr_name_entity in mro_item_dict[object_ue_id]:
+                            #mr_Name匹配上, flag-1
+                            if re.search(mr_name_entity, smr_entity.firstChild.data) == None or mro_item_dict[object_ue_id][mr_name_entity]['pos'] == -1:
+                                continue
+                            if mr_name_entity == smr_entity.firstChild.data.split(' ')[mro_item_dict[object_ue_id][mr_name_entity]['pos']]:
+                                if mr_name_entity != 'MR.LteScRIP':
+                                    #TODO: 得到value, 然后对应的加上
+                                    if len(object_entity.getElementsByTagName('v')) != 0:
+                                        value_str = object_entity.getElementsByTagName('v')[0].firstChild.data.split(' ')[mro_item_dict[object_ue_id][mr_name_entity]['pos']]
+                                        if value_str.isdigit() == True:
+                                            value = int(value_str)
+                                            for idx in range(len(item_range_list[mr_name_entity])):
+                                                if mro_item_dict[object_ue_id][mr_name_entity].__contains__('item_num') == False:
+                                                    mro_item_dict[object_ue_id][mr_name_entity]['item_num'] = {}
+                                                if mro_item_dict[object_ue_id][mr_name_entity]['item_num'].__contains__(idx) == False:
+                                                    mro_item_dict[object_ue_id][mr_name_entity]['item_num'][idx] = 0
+                                                if value <= item_range_list[mr_name_entity][idx]:
+                                                    mro_item_dict[object_ue_id][mr_name_entity]['item_num'][idx] += 1
+                                                    break
+                                else:
+                                    prbnum = object_entity.getAttribute('id').split(':')[0] + ':' + object_entity.getAttribute('id').split(':')[2]
+                                    if mro_item_dict[object_ue_id][mr_name_entity]['prbnum'].__contains__(prbnum) == False:
+                                        mro_item_dict[object_ue_id][mr_name_entity]['prbnum'][prbnum] = {'num':0, 'TimeStamp':0, 'item_num':{}}
+                                    #TODO:获得value, 加上
+                                    if len(object_entity.getElementsByTagName('v')) != 0:
+                                        value_str = object_entity.getElementsByTagName('v')[0].firstChild.data.split(' ')[mro_item_dict[object_ue_id][mr_name_entity]['pos']]
+                                        if value_str.isdigit() == True:
+                                            value = int(value_str)
+                                            for idx in range(len(item_range_list[mr_name_entity])):
+                                                if mro_item_dict[object_ue_id][mr_name_entity]['prbnum'][prbnum].__contains__('item_num') == False:
+                                                    mro_item_dict[object_ue_id][mr_name_entity]['prbnum'][prbnum]['item_num'] = {}
+                                                if mro_item_dict[object_ue_id][mr_name_entity]['prbnum'][prbnum]['item_num'].__contains__(idx) == False:
+                                                    mro_item_dict[object_ue_id][mr_name_entity]['prbnum'][prbnum]['item_num'][idx] = 0
+                                                if value <= item_range_list[mr_name_entity][idx]:
+                                                    mro_item_dict[object_ue_id][mr_name_entity]['prbnum'][prbnum]['item_num'][idx] += 1
+                                                    break
+
+            for measurement_entity in mrs_measurement_list:
+                for object_ue_id in mro_item_dict:
+                    for mr_name in mro_item_dict[object_ue_id]:
+                        if mro_item_dict[object_ue_id][mr_name]['mrs_item'] == measurement_entity.getAttribute('mrName'):
+                            if mr_name != 'MR.LteScRIP':
+                                for object_entity in measurement_entity.getElementsByTagName('object'):
+                                    if object_entity.getAttribute('id') == object_ue_id :
+                                        value_entity_list = object_entity.getElementsByTagName('v')[0].firstChild.data.strip().split(' ')
+                                        for i in range(len(item_range_list[mr_name])):
+                                            if (int(value_entity_list[i]) != 0 and mro_item_dict[object_ue_id][mr_name]['item_num'].__contains__(i) == False) or \
+                                                    (mro_item_dict[object_ue_id][mr_name]['item_num'].__contains__(i) == True and \
+                                                     int(value_entity_list[i]) != mro_item_dict[object_ue_id][mr_name]['item_num'][i]) :
+                                                mr_utils.out_text_dict_append_list(out_text_list, mrs_file_name, '[%s]-[%d]=[%d(mro) != %d(mrs)]'%(mr_name, i,
+                                                    mro_item_dict[object_ue_id][mr_name]['item_num'][i] if mro_item_dict[object_ue_id][mr_name]['item_num'] else 0,\
+                                                    int(value_entity_list[i])))
                             else:
-                                prbnum = object_entity.getAttribute('id').split(':')[0] + ':' + object_entity.getAttribute('id').split(':')[2]
-                                if mro_item_dict[object_ue_id][mr_name_entity]['prbnum'].__contains__(prbnum) == False:
-                                    mro_item_dict[object_ue_id][mr_name_entity]['prbnum'][prbnum] = {'num':0, 'TimeStamp':0, 'item_num':{}}
-                                #TODO:获得value, 加上
-                                if len(object_entity.getElementsByTagName('v')) != 0:
-                                    value_str = object_entity.getElementsByTagName('v')[0].firstChild.data.split(' ')[mro_item_dict[object_ue_id][mr_name_entity]['pos']]
-                                    if value_str.isdigit() == True:
-                                        value = int(value_str)
-                                        for idx in range(len(item_range_list[mr_name_entity])):
-                                            if mro_item_dict[object_ue_id][mr_name_entity]['prbnum'][prbnum]['item_num'].__contains__(idx) == False:
-                                                mro_item_dict[object_ue_id][mr_name_entity]['prbnum'][prbnum]['item_num'][idx] = 0
-                                            if value <= item_range_list[mr_name_entity][idx]:
-                                                mro_item_dict[object_ue_id][mr_name_entity]['prbnum'][prbnum]['item_num'][idx] += 1
-                                                break
-        mrs_dom = xml.dom.minidom.parse(mrs_file_name)
-        mrs_root = mrs_dom.documentElement
-        for measurement_entity in mrs_root.getElementsByTagName('measurement'):
-            for object_ue_id in mro_item_dict:
-                for mr_name in mro_item_dict[object_ue_id]:
-                    if mro_item_dict[object_ue_id][mr_name]['mrs_item'] == measurement_entity.getAttribute('mrName'):
-                        if mr_name != 'MR.LteScRIP':
-                            for object_entity in measurement_entity.getElementsByTagName('object'):
-                                if object_entity.getAttribute('id') == object_ue_id :
-                                    value_entity_list = object_entity.getElementsByTagName('v')[0].firstChild.data.split(' ')
-                                    for i in range(len(item_range_list[mr_name])):
-                                        if int(value_entity_list[i]) != mro_item_dict[object_ue_id][mr_name]['item_num'][i]:
-                                            if out_text_list.__contains__(mrs_file_name) == False:
-                                                out_text_list[mrs_file_name] = []
-                                            out_text_list[mrs_file_name].append('[%s]-[%d]=[%d(mro) != %d(mro)]'%(mr_name, i,
-                                                mro_item_dict[object_ue_id][mr_name]['item_num'][i], int(value_entity_list[i])))
-                        else:
-                            for object_entity in measurement_entity.getElementsByTagName('object'):
-                                prbnum = object_entity.getAttribute('id').split(':')[0] + ':' + object_entity.getAttribute('id').split(':')[2]
-                                if object_entity.getAttribute('id') == object_ue_id :
-                                    for prb_entity in mro_item_dict[object_ue_id][mr_name]['prbnum']:
-                                        if prb_entity == prbnum:
-                                            value_entity_list = object_entity.getElementsByTagName('v')[0].firstChild.data.split(' ')
-                                            for i in range(len(item_range_list[mr_name])):
-                                                if int(value_entity_list[i]) != mro_item_dict[object_ue_id][mr_name]['prbnum'][prb_entity]['item_num']:
-                                                    if out_text_list.__contains__(mrs_file_name) == False:
-                                                        out_text_list[mrs_file_name] = []
-                                                    out_text_list[mrs_file_name].append('[%s]-[%d]=[%d(mro) != %d(mro)]'%(mr_name, i,
-                                                        mro_item_dict[object_ue_id][mr_name]['item_num'][i], int(value_entity_list[i])))
+                                for object_entity in measurement_entity.getElementsByTagName('object'):
+                                    prbnum = object_entity.getAttribute('id').split(':')[0] + ':' + object_entity.getAttribute('id').split(':')[2]
+                                    if object_entity.getAttribute('id').split(':')[0] == object_ue_id :
+                                        for prb_entity in mro_item_dict[object_ue_id][mr_name]['prbnum']:
+                                            if prb_entity == prbnum:
+                                                value_entity_list = object_entity.getElementsByTagName('v')[0].firstChild.data.split(' ')
+                                                for i in range(len(item_range_list[mr_name])):
+                                                    if (int(value_entity_list[i]) != 0 and mro_item_dict[object_ue_id][mr_name]['prbnum'][prb_entity]['item_num'].__contains__(i) == False) or \
+                                                        (mro_item_dict[object_ue_id][mr_name]['prbnum'][prb_entity]['item_num'].__contains__(i) == True and int(value_entity_list[i]) != mro_item_dict[object_ue_id][mr_name]['prbnum'][prb_entity]['item_num'][i]):
+                                                        mr_utils.out_text_dict_append_list(out_text_list, mrs_file_name, '[%s]-[prb:%s id:%d]=[%d(mro) != %d(mrs)]'%(mr_name, prb_entity, i,
+                                                            mro_item_dict[object_ue_id][mr_name]['prbnum'][prb_entity]['item_num'][i] if mro_item_dict[object_ue_id][mr_name]['prbnum'][prb_entity]['item_num'].__contains__(i) == True else 0, int(value_entity_list[i])))
+        except Exception as result:
+            raise Exception('<%s> MRO:%s MRS:%s'%(result, gl.MR_DICT[time_entity][0]['MRO'], gl.MR_DICT[time_entity][0]['MRS']))
     with open(gl.OUT_PATH, 'a') as file_object:
         file_object.write('\n [' + ' add mro-mrs num mapping ' + ']:\n')
         temp_flag = 0
@@ -1469,7 +1472,7 @@ def test_add_mro_s_mapping():
             temp_flag = 1
             file_object.write('===>' + mrs_file_name + ' :\n')
             for i in range(len(out_text_list[mrs_file_name])):
-                file_object.write('\t' + out_text_list[mrs_file_name][i])
+                file_object.write('\t' + out_text_list[mrs_file_name][i] + '\n')
         if temp_flag == 0:
             file_object.write('test ok')
 
@@ -1565,9 +1568,7 @@ def mr_test_process():
     except Exception as result:
         print ('err in test add mros mapping : %s'% (result))
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print("Hi, {0}".format(name))  # Press Ctrl+F8 to toggle the breakpoint.
+
 
 
 
