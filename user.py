@@ -9,6 +9,7 @@ import math
 import openpyxl
 import mr_globel as gl
 import mr_utils
+from mr_qt import write_info
 
 
 def test51_file_integrity():
@@ -45,7 +46,7 @@ def test51_file_integrity():
         with open(gl.OUT_PATH, 'a') as file_object:
             file_object.write(date_time + " | ")
             file_object.write(gl.TEST_CONF['test_total_time'] + " | ")
-            file_object.write(gl.TEST_CONF['mr_test_enodeb_num'] + " | ")
+            file_object.write(str(len(gl.TEST_CONF['enbid'].split(','))) + " | ")
             file_object.write(str(predict_file_num * (len(gl.MR_CONF['MeasureType'].split(',')))) + ' | ')
             file_object.write(str(len(file_list_mrs)) + ' | ')
             file_object.write(str(len(file_list_mro)) + ' | ')
@@ -1487,86 +1488,86 @@ def mr_test_process():
         try:
             test51_file_integrity()
         except Exception as result:
-            print ('err in test_51: %s'%(result))
+            write_info ('err in test_51: %s'%(result))
     if gl.TEST_CONF['test52'] == '1':
         try:
             test52_file_integrity()
         except Exception as result:
-            print ('err in test_52: %s'%(result) )
+            write_info ('err in test_52: %s'%(result) )
     if gl.TEST_CONF['test53'] == '1':
         try:
             test53_file_integrity()
         except Exception as result:
-            print ('err in test_53: %s'% (result) )
+            write_info ('err in test_53: %s'% (result) )
     if gl.TEST_CONF['test54'] == '1':
         try:
             test54_file_integrity()
         except Exception as result:
-            print ('err in test_54: %s'%( result) )
+            write_info ('err in test_54: %s'%( result) )
     if gl.TEST_CONF['test55'] == '1':
         try:
             test55_file_integrity()
         except Exception as result:
-            print ('err in test_55 : %s'%(result))
+            write_info ('err in test_55 : %s'%(result))
     if gl.TEST_CONF['test56'] == '1':
         try:
             test56_file_integrity()
         except Exception as result:
-            print ('err in test_56: %s'%( result))
+            write_info ('err in test_56: %s'%( result))
     if gl.TEST_CONF['test57'] == '1':
         try:
             test57_file_integrity()
         except Exception as result:
-            print ('err in test_57: %s' %(result) )
+            write_info ('err in test_57: %s' %(result) )
     if gl.TEST_CONF['test58'] == '1':
         try:
             test58_file_integrity()
         except Exception as result:
-            print ('err in test_58: %s' % (result))
+            write_info ('err in test_58: %s' % (result))
     if gl.TEST_CONF['test59'] == '1':
         try:
             test59_file_integrity()
         except Exception as result:
-            print ('err in test_59: %s' % (result))
+            write_info ('err in test_59: %s' % (result))
     if gl.TEST_CONF['test61'] == '1':
         try:
             test61_file_accuracy()
         except Exception as result:
-            print ('err in test_61: %s' % (result))
+            write_info ('err in test_61: %s' % (result))
     if gl.TEST_CONF['test62'] == '1':
         try:
             test62_file_accuracy()
         except Exception as result:
-            print ('err in  test_62: %s'% (result))
+            write_info ('err in  test_62: %s'% (result))
     if gl.TEST_CONF['test63'] == '1':
         try:
             test63_file_accuracy()
         except Exception as result:
-            print ('err in  test_63: %s'% (result))
+            write_info ('err in  test_63: %s'% (result))
     if gl.TEST_CONF['test71'] == '1':
         try:
             test71_file_accuracy()
         except Exception as result:
-            print ('err in test_71: %s'% (result))
+            write_info ('err in test_71: %s'% (result))
     if gl.TEST_CONF['test72'] == '1':
         try:
             test72_file_accuracy()
         except Exception as result:
-            print ('err in test_72: %s' % (result))
+            write_info ('err in test_72: %s' % (result))
     if gl.TEST_CONF['test73'] == '1':
         try:
             test73_file_accuracy()
         except Exception as result:
-            print ('err in  test_73: %s' % (result))
+            write_info ('err in  test_73: %s' % (result))
     if gl.TEST_CONF['test_add_timestamp'] == '1':
         try:
             test_add_timestamp_number()
         except Exception as result:
-            print ('err in test add timestamp: %s'% (result))
+            write_info ('err in test add timestamp: %s'% (result))
     try:
         test_add_mro_s_mapping()
     except Exception as result:
-        print ('err in test add mros mapping : %s'% (result))
+        write_info ('err in test add mros mapping : %s'% (result))
 
 
 

@@ -5,6 +5,7 @@ import time
 import datetime
 import xml
 import mr_globel as gl
+from mr_qt import write_info
 
 
 #MR文件xml的初始化,读取xml的文件
@@ -49,14 +50,14 @@ def MR_xml_init():
 def print_mr_dict():
     for time_str in gl.MR_DICT:
         list_entity = gl.MR_DICT[time_str]
-        print ("sample time : " + time_str)
-        print (list_entity[0])
-        print (list_entity[1].keys())
-        print (list_entity[1].values())
-        print (list_entity[2].keys())
-        print (list_entity[2].values())
-        print (list_entity[3].keys())
-        print (list_entity[3].values())
+        write_info ("sample time : " + time_str)
+        write_info (list_entity[0])
+        write_info (list_entity[1].keys())
+        write_info (list_entity[1].values())
+        write_info (list_entity[2].keys())
+        write_info (list_entity[2].values())
+        write_info (list_entity[3].keys())
+        write_info (list_entity[3].values())
 
 
 def MR_xml_file_name_accuracy(file_name):
@@ -116,7 +117,7 @@ def conf_xml_parse():
         #解析TEST_CONF, 就是手动输入测试相关的信息,包括测试的总时间, 小区, 邻区id等
         test_conf_list = conf_root.getElementsByTagName("TEST_CONF")
         for test_conf_entity in test_conf_list:
-            for test_conf_dict_key_entity in gl.TEST_CONF:#从结果中,看到赋值,是dict 从右到左的顺序
+            for test_conf_dict_key_entity in gl.TEST_CONF:
                 gl.TEST_CONF[test_conf_dict_key_entity] = test_conf_entity.getElementsByTagName(test_conf_dict_key_entity)[0].firstChild.data
                 #print (test_conf_dict_key_entity + TEST_CONF[test_conf_dict_key_entity])
 
@@ -146,10 +147,10 @@ def conf_xml_parse():
             for i in range(len(item_entity_list)):
                 gl.TEST_ITEM_LIST.append(item_entity_list[i].firstChild.data )
                 #print (TEST_ITEM_LIST[i+1])
-        gl.TEST_CONF['mr_test_enodeb_num'] = str(len(gl.TEST_CONF['enbid'].split(',')))
+
 
     else:
-        print ('no conf.xml file')
+        write_info ('no conf.xml file')
 
 def get_time_format(format="%Y:%m:%d %H:%M:%S"):
     temp_time = time.time()
