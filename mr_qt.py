@@ -146,18 +146,25 @@ class mr_ui_window(QMainWindow):
     def mr_test_start(self):
         try:
             self.text.clear()
+            self.text.append('test start...')
             self.test_push_button.setEnabled(False)
             gl.MR_TEST_PATH = self.mr_path + '\\'
             gl.OUTPUT_PATH = self.output_path + '\\'
+
             user.mr_test_process()
+
             self.text.append('test ok')
+            for i in range(len(gl.str_info)):
+                self.text.append(gl.str_info[i])
+            gl.str_info.clear()
             self.cat_data_button.setEnabled(True)
             self.test_push_button.setEnabled(True)
         except Exception as result:
-            self.text.append ('mr test err: <%s>'%(result))
+            self.text.append ('mr test err <%s> -%s- :'%(result, str(result.__traceback__.tb_lineno)))
+
     def cat_data_file(self):
         file_name = os.path.join(self.output_path, 'data.txt')
         os.startfile(file_name)
 
-write_info = lambda info:mr_ui_window.getText().append(info)
+# write_info = lambda info:mr_ui_window.getText().append(info)
 

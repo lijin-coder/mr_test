@@ -22,7 +22,7 @@ ONE_DIMENSION_NAME = "LTE一维测量报告统计数据"
 TIME_OUTPUT_FORMAT = "%Y:%m:%d %H:%M:%S"
 MR_DICT = {}
 MR_TYPE = {'MRO':1, 'MRE':2, 'MRS':3}
-
+str_info = []
 
 TEST_CONF = {'test_total_time':'', 'cellid':'', 'enbid':'', 'event':'', 'standard_LTE':'', 'OEM':'',  \
              'file_delay_time':'', 'is_57_out_excel':'', 'is_58_out_excel':'', 'is_59_out_excel':'',\

@@ -5,11 +5,12 @@ import time
 import datetime
 import xml
 import mr_globel as gl
-from mr_qt import write_info
+write_info = lambda info:gl.str_info.append(str(info))
 
 
 #MR文件xml的初始化,读取xml的文件
 def MR_xml_init():
+    gl.MR_DICT.clear()
     file_list = os.listdir(gl.MR_TEST_PATH)
     re_search_str = gl.TEST_CONF['standard_LTE'] + '_MR'
     for file in file_list:
@@ -171,7 +172,7 @@ def get_timestamp_by_str_format(time_str, format="%Y-%m-%dT%H:%M:%S.%f"):
 
 def is_mro_correct(full_file_name):
 
-    smr_target_list = ['MR.LteScEarfcn MR.LteScPci MR.LteScRSRP MR.LteScRSRQ MR.LteScPHR MR.LteScSinrUL MR.LteNcEarfcn MR.LteNcPci MR.LteNcRSRP MR.LteNcRSRQ ', 'MR.LteScRIP']
+    smr_target_list = ['MR.LteScEarfcn MR.LteScPci MR.LteScRSRP MR.LteScRSRQ MR.LteScPHR MR.LteScSinrUL MR.LteNcEarfcn MR.LteNcPci MR.LteNcRSRP MR.LteNcRSRQ', 'MR.LteScRIP']
 
     if re.search(r'MRO', full_file_name) == None:
         return True, 'file name not mro'
@@ -202,8 +203,9 @@ def is_mro_correct(full_file_name):
             smr_list = measurement_entity.getElementsByTagName('smr')
             if len(smr_list) != 1 and len(smr_list) != 0:
                 return False, 'smr format error'+str(len(smr_list))
-            if smr_list[0].firstChild.data not in smr_target_list:
-                return False, 'smr not match'+smr_list[0].firstChild.data
+            for mr_item in smr_list[0].firstChild.data.strip().split(' '):
+                if re.search(mr_item, smr_target_list[0]) == None and re.search(mr_item, smr_target_list[1]) == None and is_mr_item_need_exist(mr_item) == True:
+                    return False, 'smr not match  <%s>'%(mr_item)
 
     return True,'correct'
 
@@ -240,8 +242,9 @@ def is_mre_correct(full_file_name):
             smr_list = measurement_entity.getElementsByTagName('smr')
             if len(smr_list) != 1 and len(smr_list) != 0:
                 return False, 'smr error'
-            if re.search(smr_target_str, smr_list[0].firstChild.data) == None:
-                return False, 'smr not match' + smr_list[0].firstChild.data
+            for mr_item in smr_list[0].firstChild.data.strip().split(' '):
+                if re.search(mr_item, smr_target_str) == None and is_mr_item_need_exist(mr_item) == True:
+                    return False, 'smr not match <%s>' % (mr_item)
 
     return True,'correct'
 
@@ -282,8 +285,8 @@ def is_mrs_correct(full_file_name):
             smr_list = measurement_entity.getElementsByTagName('smr')
             if len(smr_list) != 1 and len(smr_list) != 0:
                 return False, 'smr error'
-            if smr_list[0].firstChild.data not in  smr_target_list:
-                return False, 'smr not match' + smr_list[0].firstChild.data
+            if smr_list[0].firstChild.data not in  smr_target_list and is_mr_item_need_exist(measurement_entity.getAttribute('mrName')) == True:
+                return False, 'smr not match <%s>'%( measurement_entity.getAttribute('mrName'))
 
     return True,'correct'
 
@@ -389,8 +392,8 @@ def get_mro_pos_list_by_mapping(mro_conf_dict, smr_str):
         if mro_conf_dict[mr_name].__contains__('pos') == False:
             continue
         temp_flag = 0
-        for i in range(len(standard_smr_str_list)):
-            if standard_smr_str_list[i] == mr_name:
+        for i in range(len(smr_list)):
+            if smr_list[i] == mr_name:
                 mro_conf_dict[mr_name]['pos'] = i
                 temp_flag = 1
                 break

@@ -2,8 +2,8 @@
 <configure>
     <TEST_CONF>
         <test_total_time>2</test_total_time>
-        <cellid>226</cellid>
-        <enbid>226</enbid>
+        <cellid>215</cellid>
+        <enbid>215</enbid>
         <event>A1,A2,A3,A4,A5</event>
         <standard_LTE>FDD-LTE</standard_LTE>
         <OEM>CMDI</OEM>
@@ -37,12 +37,12 @@
         <SubFrameNum>2,3,7</SubFrameNum>
         <PrbNum>0,1,2,3,4,5,6,7,8,9</PrbNum>
         <MeasureType>MRO,MRE,MRS</MeasureType>
-        <SamplePeriod>5120</SamplePeriod>
-        <OmcName>OMC-R</OmcName>
+        <SamplePeriod>2048</SamplePeriod>
+        <OmcName>OMC0</OmcName>
         <MrEnable>1</MrEnable>
         <SampleBeginTime>0001-01-01T00:00:00Z</SampleBeginTime>
         <MRECGIList>all</MRECGIList>
-        <MeasureItems>all</MeasureItems>
+        <MeasureItems>MR.LteScPHR,MR.LteScRIP,MR.LteScSinrUL,MR.GsmNcellBcch,MR.GsmNcellCarrierRSSI,MR.GsmNcellNcc,MR.GsmNcellBcc</MeasureItems>
     </MR_CONF>
     <TEST_OUT>
         <test_51 item_num="10" item1="1" item2="2" item3="3" item4="4"  item5="5" item6="6" item7="7" item8="8" item9="9" item10="10" />

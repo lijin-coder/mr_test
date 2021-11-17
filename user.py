@@ -9,7 +9,8 @@ import math
 import openpyxl
 import mr_globel as gl
 import mr_utils
-from mr_qt import write_info
+
+write_info = lambda info:gl.str_info.append(str(info))
 
 
 def test51_file_integrity():
@@ -64,7 +65,7 @@ def test51_file_integrity():
                                   if re.search('MRE', gl.MR_CONF['MeasureType']) != None \
                                   else (len(file_list_mre == 0)) ) + ' | ')
     except Exception as result:
-        raise Exception('<%s>'%(result))
+        raise Exception('-%s- <%s>'%(str(result.__traceback__.tb_lineno),result))
 
 
 def test52_file_integrity():
@@ -105,7 +106,7 @@ def test52_file_integrity():
                                         out_dict[mrs_file_entity][mr_name_entity]['list'].append(cellid_ret_list[1])
                             break
         except Exception as result:
-            raise Exception('<%s> : %s '%(result, mrs_file_entity))
+            raise Exception('-%s- <%s> : %s '%(str(result.__traceback__.tb_lineno),result, mrs_file_entity))
 
 
     with open(gl.OUT_PATH, 'a') as file_object:
@@ -176,11 +177,11 @@ def test53_file_integrity():
                     break
             for cell_id_entity in subfram_dict[file_mrs_name]:
                 for subfram_entity in gl.MR_CONF['SubFrameNum'].split(','):
-                    if subfram_dict[file_mrs_name][cell_id_entity][subfram_entity] != 1 :
+                    if subfram_dict[file_mrs_name][cell_id_entity][subfram_entity] != 1 and mr_utils.is_mr_item_need_exist('MR.ReceivedIPower') == True:
                         mr_utils.out_text_dict_append_list(text_consistent, file_mrs_name, '[MR.ReceivedIPower]:<confusion rip [cellid:%s]-[%s]>'%(cell_id_entity,subfram_entity))
                         subfram_dict[file_mrs_name][cell_id_entity]['consistent'] = 1
         except Exception as result:
-            raise Exception('<%s> : [%s]'%(result, file_mrs_name))
+            raise Exception('-%s- <%s> : [%s]'%(str(result.__traceback__.tb_lineno),result, file_mrs_name))
     with open(gl.OUT_PATH, 'a') as file_object:
         file_object.write(date_time + " | ")
         file_object.write(gl.TEST_CONF['test_total_time'] + " | \n")
@@ -236,17 +237,17 @@ def test54_file_integrity():
                             mr_utils.out_text_dict_append_list(text_consistence, file_name, '<ripprb not match>:[%s:%s]'%(rip,prb))
                     break
         except Exception as result:
-            raise Exception('<%s> : [%s]'%(result, file_name))
+            raise Exception('-%s- <%s> : [%s]'%(str(result.__traceback__.tb_lineno),result, file_name))
     with open(gl.OUT_PATH, 'a') as file_object:
         file_object.write(date_time + " | ")
         file_object.write(gl.TEST_CONF['test_total_time'] + " | \n")
         for file_name in mrs_ripprb_dict:
-            file_object.write('====>%s: \n\t\t'%(file_name))
+            file_object.write('====>%s: \n'%(file_name))
             for cell_id_str in mrs_ripprb_dict[file_name]:
                 ripnum = len(mrs_ripprb_dict[file_name][cell_id_str])
-                file_object.write('<[cell:%s]:[%d] | %s>\n'%(cell_id_str, ripnum, ripnum == ripprb_num ))
+                file_object.write('\t\t<[cell:%s]:[%d] | %s>\n'%(cell_id_str, ripnum, ripnum == ripprb_num ))
             if text_consistence.__contains__(file_name) == True:
-                file_object.write('error:\n')
+                file_object.write('\terror:\n')
                 for i in range(len(text_consistence[file_name])):
                     file_object.write(text_consistence[file_name][i] + '\n')
 
@@ -263,13 +264,13 @@ def test55_file_integrity():
         try:
             mro_measurement_list = []
             mrs_measurement_list = []
-            if re.search(r'MRO', gl.MR_CONF['MeasureType']) != None:
+            if re.search(r'MRO', gl.MR_CONF['MeasureType']) != None and gl.MR_DICT[time_list_entity][0]['MRO'] != '':
                 mro_file_name = gl.MR_DICT[time_list_entity][0]['MRO']
                 mro_dom = xml.dom.minidom.parse(mro_file_name)
                 mro_root = mro_dom.documentElement
                 mro_measurement_list = mro_root.getElementsByTagName('measurement')
 
-            if re.search(r'MRS', gl.MR_CONF['MeasureType']) != None:
+            if re.search(r'MRS', gl.MR_CONF['MeasureType']) != None and gl.MR_DICT[time_list_entity][0]['MRS'] != '':
                 mrs_file_name = gl.MR_DICT[time_list_entity][0]['MRS']
                 mrs_dom = xml.dom.minidom.parse(mrs_file_name)
                 mrs_root = mrs_dom.documentElement
@@ -336,11 +337,17 @@ def test55_file_integrity():
                 file_object.write('\n' + " " * (len(date_time) + len(gl.TEST_CONF['test_total_time']) + 6))
 
                 file_object.write('[统计采样点数是否完整]' + " | ")
-                file_object.write(str(mro_count_dict['MR.LteScRSRP'] == mrs_count_dict['MR.RSRP']) + ' | ')
-                file_object.write(str(mro_count_dict['MR.LteScRSRQ'] == mrs_count_dict['MR.RSRQ']) + ' | ')
-                file_object.write(str(mro_count_dict['MR.LteScPHR'] == mrs_count_dict['MR.PowerHeadRoom']) + ' | \n')
+                file_object.write(str(mro_count_dict['MR.LteScRSRP'] == mrs_count_dict['MR.RSRP'] or \
+                                      mr_utils.is_mr_item_need_exist('MR.LteScRSRP') == False or \
+                                      mr_utils.is_mr_item_need_exist('MR.RSRP') == False) + ' | ')
+                file_object.write(str(mro_count_dict['MR.LteScRSRQ'] == mrs_count_dict['MR.RSRQ'] or \
+                                      mr_utils.is_mr_item_need_exist('MR.LteScRSRQ') == False or \
+                                      mr_utils.is_mr_item_need_exist('MR.RSRQ') == False) + ' | ')
+                file_object.write(str(mro_count_dict['MR.LteScPHR'] == mrs_count_dict['MR.PowerHeadRoom'] or \
+                                      mr_utils.is_mr_item_need_exist('MR.LteScPHR') == False or \
+                                      mr_utils.is_mr_item_need_exist('MR.PowerHeadRoom') == False) + ' | \n')
         except Exception as result:
-            raise Exception('<%s> MRO:[%s] MRS:[%s]'%(result, gl.MR_DICT[time_list_entity][0]['MRO'],gl.MR_DICT[time_list_entity][0]['MRS']))
+            raise Exception('-%s- <%s> MRO:[%s] MRS:[%s]'%(str(result.__traceback__.tb_lineno),result, gl.MR_DICT[time_list_entity][0]['MRO'],gl.MR_DICT[time_list_entity][0]['MRS']))
 
 
 def test56_file_integrity():
@@ -353,14 +360,15 @@ def test56_file_integrity():
         try:
             mro_count_dict = {'MR.LteScRIP':{}, 'MR.LteScSinrUL':{}}
             mrs_count_dict = {'MR.ReceivedIPower':{}, 'MR.SinrUL':{}}
+            sinrul_pos_dict = {'MR.LteScSinrUL':{'pos':0}}
             mro_measurement_list = []
             mrs_measurement_list = []
-            if re.search(r'MRO', gl.MR_CONF['MeasureType']) != None:
+            if re.search(r'MRO', gl.MR_CONF['MeasureType']) != None and gl.MR_DICT[time_list_entity][0]['MRO'] != '':
                 mro_file_name = gl.MR_DICT[time_list_entity][0]['MRO']
                 mro_dom = xml.dom.minidom.parse(mro_file_name)
                 mro_root = mro_dom.documentElement
                 mro_measurement_list = mro_root.getElementsByTagName('measurement')
-            if re.search(r'MRS', gl.MR_CONF['MeasureType']) != None:
+            if re.search(r'MRS', gl.MR_CONF['MeasureType']) != None and gl.MR_DICT[time_list_entity][0]['MRS'] != '':
                 mrs_file_name = gl.MR_DICT[time_list_entity][0]['MRS']
                 mrs_dom = xml.dom.minidom.parse(mrs_file_name)
                 mrs_root = mrs_dom.documentElement
@@ -380,6 +388,7 @@ def test56_file_integrity():
                                     object_prb = object_value.split(':')[2]
 
                                 if mro_count_dict[mr_name].__contains__(object_id) == False :
+
                                     if mr_name == 'MR.LteScRIP':
                                         mro_count_dict[mr_name][object_id] = {}
                                     else:
@@ -392,10 +401,12 @@ def test56_file_integrity():
                                 for value_entity in object_entity.getElementsByTagName('v'):
                                     if mr_name == 'MR.LteScRIP' and value_entity.firstChild.data.isdigit() == True:
                                         mro_count_dict[mr_name][object_id][object_prb] += 1
-                                    elif mr_name == 'MR.LteScSinrUL' and value_entity.firstChild.data.split(' ')[5].isdigit() == True:
+                                    elif mr_name == 'MR.LteScSinrUL' :
+                                        mr_utils.get_mro_pos_list_by_mapping(sinrul_pos_dict, smr_entity.firstChild.data)
+                                        if value_entity.firstChild.data.split(' ')[sinrul_pos_dict['MR.LteScSinrUL']['pos']].isdigit() == True:
                                             #TODO:在这里还需要商量一下,如果在MRO中没有统计,那么在MRS中,采样点数目是对不上的
-                                        #if int(value_entity.firstChild.data.split(' ')[5]) != 0 :
-                                        mro_count_dict[mr_name][object_id] += 1
+                                            #if int(value_entity.firstChild.data.split(' ')[5]) != 0 :
+                                            mro_count_dict[mr_name][object_id] += 1
 
             for mr_name in out_mrs_list:
                 for measurement_entity in mrs_measurement_list:
@@ -457,13 +468,17 @@ def test56_file_integrity():
                 test_flag = 0
                 for object_id in mrs_count_dict['MR.ReceivedIPower']:
                     for object_prb in mrs_count_dict['MR.ReceivedIPower'][object_id]:
+                        if mro_count_dict['MR.LteScRIP'].__contains__(object_id) == False:
+                            continue
                         if mro_count_dict['MR.LteScRIP'][object_id].__contains__(object_prb) == True and mro_count_dict['MR.LteScRIP'][object_id][object_prb] != mrs_count_dict['MR.ReceivedIPower'][object_id][object_prb]:
                             test_flag = 1
                 file_object.write('[统计采样点数是否完整]' + " | ")
                 file_object.write(str(0 == test_flag) + ' | ')
-                file_object.write(str(mro_count_dict['MR.LteScSinrUL'] == mrs_count_dict['MR.SinrUL']) + ' | \n')
+                file_object.write(str(mro_count_dict['MR.LteScSinrUL'] == mrs_count_dict['MR.SinrUL'] or\
+                                      mr_utils.is_mr_item_need_exist('MR.LteScSinrUL') == False or \
+                                      mr_utils.is_mr_item_need_exist('MR.SinrUL') == False) + ' | \n')
         except Exception as result:
-            raise Exception('<%s> : MRO:[%s] MRS:[%s]'%(result, gl.MR_DICT[time_list_entity][0]['MRO'], gl.MR_DICT[time_list_entity][0]['MRS']))
+            raise Exception('-%s- <%s> : MRO:[%s] MRS:[%s]'%(str(result.__traceback__.tb_lineno),result, gl.MR_DICT[time_list_entity][0]['MRO'], gl.MR_DICT[time_list_entity][0]['MRS']))
 
 def test57_file_integrity():
     mr_utils.test_out_data_item_header("test_57")
@@ -544,7 +559,7 @@ def test57_file_integrity():
                         file_object.write('\t%s\n' % (out_text_list[file_name][i]))
             file_object.write('\n')
     except Exception as result:
-        raise Exception('<%s>'%(result))
+        raise Exception('-%s- <%s>'%(str(result.__traceback__.tb_lineno),result))
 
 def test58_file_integrity():
     mr_utils.test_out_data_item_header("test_58")
@@ -704,7 +719,7 @@ def test58_file_integrity():
                 rip_accuracy_index = result_div if result_div == 1.0 else sum_all_prbnum_count*1.0 / ((ideal_sample_num + 1) * len(gl.MR_CONF['SubFrameNum'].split(','))) * 1.0
                 file_object.write(str( rip_accuracy_index) + ' | \n')
         except  Exception as result:
-            raise Exception('[%s]:<%s>'%(mro_file, result))
+            raise Exception('-%s- [%s]:<%s>'%(str(result.__traceback__.tb_lineno),mro_file, result))
 
     with open(gl.OUT_PATH, 'a') as file_object:
         if int(gl.TEST_CONF['is_58_out_excel']) == 1:
@@ -773,7 +788,8 @@ def test59_file_integrity():
             mre_dom = xml.dom.minidom.parse(mre_file_name)
             mre_root = mre_dom.documentElement
             smr_list = mre_root.getElementsByTagName('smr')
-
+            if len(smr_list) == 0:
+                continue
             smr_str = smr_list[0].firstChild.data
             if len(smr_list) == 0 :
                 temp_flag = 0
@@ -812,14 +828,18 @@ def test59_file_integrity():
                                         if pos not in mre_conf_dict[event_type]['error_pos_list']:
                                             mre_conf_dict[event_type]['error_pos_list'].append(pos)
                                 else:
+                                    if len(value_entity.firstChild.data.split(' ')) <= pos:
+                                        break
                                     if value_entity.firstChild.data.split(' ')[pos] != 'NIL':
                                         temp_mre_test_flag_dict[event_type] += 1
                                         mr_utils.out_text_dict_append_list(out_mre_text, mre_file_name, 'event format confusion(not NIL):[{0}] event:[{1}}] TimeStamp:[{2}]'.format(mre_smr_list[pos], event_type, object_entity.getAttribute('TimeStamp')))
                                         if pos not in mre_conf_dict[event_type]['error_pos_list']:
                                             mre_conf_dict[event_type]['error_pos_list'].append(pos)
+
                 if test_excess_flag == 0:
                     mr_utils.out_text_dict_append_list(out_mre_text, mre_file_name, 'suplus event:{0} - TimeStamp:{1}\n'.format(object_entity.getAttribute('EventType'), object_entity.getAttribute('TimeStamp')))
             with open(gl.OUT_PATH, 'a') as file_object:
+                file_object.write('====>%s:\n'%(mre_file_name))
                 file_object.write(date_time + " | ")
                 file_object.write(gl.TEST_CONF['test_total_time'] + " | " )
 
@@ -841,7 +861,7 @@ def test59_file_integrity():
 
                 file_object.write('\n\n')
         except Exception as result:
-            raise Exception('[%s] <%s>'%(mre_file_name, result))
+            raise Exception('-%s- [%s] <%s> %s'%(str(result.__traceback__.tb_lineno),mre_file_name, result, str(result.__traceback__.tb_lineno)))
 
 
     if int(gl.TEST_CONF['is_59_out_excel']) == 1:
@@ -909,13 +929,14 @@ def test71_file_accuracy():
     try:
         file_list = os.listdir(gl.MR_TEST_PATH)
         re_search_str = gl.TEST_CONF['standard_LTE'] + '_MR'
+
         for file in file_list:
             full_file = os.path.join(gl.MR_TEST_PATH, file)
+
             if  os.path.isdir(full_file) == False and re.search(re_search_str, file) != None:
                 if mr_utils.MR_xml_file_name_accuracy(file) == False :
                     test_flag |= (0x1 << 1)
                     mr_utils.out_text_dict_append_list(out_text_list, file, 'file_name format err: ->  %s_MR*_%s_%s_%s_YYmmddHHMMSS.xml\n' %( gl.TEST_CONF['standard_LTE'] ,  gl.TEST_CONF['OEM'] , gl.MR_CONF['OmcName'] , gl.TEST_CONF['cellid']))
-
                 if mr_utils.is_mro_correct(full_file)[0] == False:
                     test_flag |= (0x1 << 2)
                     mr_utils.out_text_dict_append_list(out_text_list, file, 'file format  -> %s\n' % (mr_utils.is_mro_correct(full_file)[1]))
@@ -962,7 +983,8 @@ def test71_file_accuracy():
                 for i in range(len(out_text_list[file_name])):
                     file_object.write('\t' + out_text_list[file_name][i])
     except Exception as result:
-        raise Exception('%s'%(result))
+        print (result)
+        raise Exception('<%s> %s'%(str(result.__traceback__.tb_lineno),result))
 
 def test72_file_accuracy():
     mr_utils.test_out_data_item_header("test_72")
@@ -1068,7 +1090,7 @@ def test72_file_accuracy():
                     mro_doc = xml.dom.minidom.parse(gl.MR_DICT[time_str][0]['MRO'])
                     mro_root = mro_doc.documentElement
                     earfcn_value = mro_root.getElementsByTagName('measurement')[0].getElementsByTagName('object')[0].getElementsByTagName('v')[0].firstChild.data.split(' ')[0] if \
-                        len(mro_root.getElementsByTagName('measurement')[0].getElementsByTagName('object')) != 0 else '-1'
+                        len(mro_root.getElementsByTagName('measurement')) != 0 and len(mro_root.getElementsByTagName('measurement')[0].getElementsByTagName('object')) != 0 else '-1'
 
                     #获得子帧分帧
                     prbnum_list = []
@@ -1145,7 +1167,7 @@ def test72_file_accuracy():
                             measureItem_list[mr_name] += 1
 
         except Exception as result:
-            raise Exception('<%s> MRO:%s MRE:%s MRS:%s'%(result, gl.MR_DICT[time_str][0]['MRO'], gl.MR_DICT[time_str][0]['MRE'], gl.MR_DICT[time_str][0]['MRS']))
+            raise Exception('-%s- <%s> MRO:%s MRE:%s MRS:%s'%(str(result.__traceback__.tb_lineno),result, gl.MR_DICT[time_str][0]['MRO'], gl.MR_DICT[time_str][0]['MRE'], gl.MR_DICT[time_str][0]['MRS']))
 
     with open(gl.OUT_PATH, 'a') as file_object:
         file_object.write(date_time + " | ")
@@ -1191,7 +1213,7 @@ def test73_file_accuracy():
                     time_stamp_tmep = mr_utils.get_timestamp_by_str_format(object_entity.getAttribute('TimeStamp'))
                     mro_file_flag_dict[mro_file][ue_mme_name]['mro_object_num'] += 1
         except Exception as result:
-            raise Exception('%s <%s>'%(mro_file, result))
+            raise Exception('-%s- %s <%s>'%(str(result.__traceback__.tb_lineno),mro_file, result))
 
     with open(gl.OUT_PATH, 'a') as file_object:
         file_object.write(date_time + " | ")
@@ -1244,6 +1266,7 @@ def test_add_timestamp_number():
                     continue
                 if re.search(smr_rip_str, l2_smr_list[0].firstChild.data) == None:
                     continue
+
                 for l3_object_entity in l3_object_list:
                     cell_id_ret_list = mr_utils.is_cell_id_exist(int(l3_object_entity.getAttribute('id').split(':')[0]))
                     cell_id = str(cell_id_ret_list[1])
@@ -1258,7 +1281,6 @@ def test_add_timestamp_number():
                         l3_timestamp_temp = time_stamp
                         timestamp_dict['l3'][cell_id]['time_str'].append(time_str)
                         timestamp_dict['l3'][cell_id]['time_stamp'].append(time_stamp)
-
                 for l2_object_entity in l2_object_list:
                     cell_id_ret_list = mr_utils.is_cell_id_exist(int(l2_object_entity.getAttribute('id').split(':')[0]))
                     cell_id = str(cell_id_ret_list[1])
@@ -1272,6 +1294,7 @@ def test_add_timestamp_number():
                         l2_timestamp_temp = time_stamp
                         timestamp_dict['l2'][cell_id]['time_str'].append(time_str)
                         timestamp_dict['l2'][cell_id]['time_stamp'].append(time_stamp)
+
                 for cell_id in timestamp_dict['l2'] if len(timestamp_dict['l2']) >= len(timestamp_dict['l3']) else timestamp_dict['l3']:
                     if timestamp_dict['l2'].__contains__(cell_id) == True and timestamp_dict['l3'].__contains__(cell_id) == True:
                         if timestamp_dict['l2'][cell_id]['num'] != timestamp_dict['l3'][cell_id]['num']:
@@ -1311,14 +1334,17 @@ def test_add_timestamp_number():
                             if timestamp_dict['l3'][cell_id]['time_stamp'][l3_index] == timestamp_dict['l2'][cell_id]['time_stamp'][l2_index]:
                                 l2_index += 1
                                 l3_index += 1
+                                suplus_temp = 0
                             elif timestamp_dict['l3'][cell_id]['time_stamp'][l3_index] < timestamp_dict['l2'][cell_id]['time_stamp'][l2_index]:
-                                mr_utils.out_text_dict_append_list(out_text_dict, mro_file, '[%s] <timestamp not match>: [l3]-[%d]-%s < [l2]-[%d]-%s \n'%(cell_id,l3_index,timestamp_dict['l3']['time_str'][l3_index], l3_index,timestamp_dict['l2']['time_str'][l2_index] ))
+                                mr_utils.out_text_dict_append_list(out_text_dict, mro_file, '[%s] <timestamp not match>: [l3]-[%d]-%s < [l2]-[%d]-%s \n'%(cell_id,l3_index,timestamp_dict['l3'][cell_id]['time_str'][l3_index], l2_index,timestamp_dict['l2'][cell_id]['time_str'][l2_index] ))
                                 l3_index += 1
+                                suplus_temp += 1
                             elif timestamp_dict['l3'][cell_id]['time_stamp'][l3_index] > timestamp_dict['l2'][cell_id]['time_stamp'][l2_index]:
-                                mr_utils.out_text_dict_append_list(out_text_dict, mro_file, '[%s] <timestamp not match>: [l3]-[%d]-%s > [l2]-[%d]-%s \n'%(cell_id,l3_index,timestamp_dict['l3']['time_str'][l3_index], l3_index,timestamp_dict['l2']['time_str'][l2_index] ))
+                                mr_utils.out_text_dict_append_list(out_text_dict, mro_file, '[%s] <timestamp not match>: [l3]-[%d]-%s > [l2]-[%d]-%s \n'%(cell_id,l3_index,timestamp_dict['l3'][cell_id]['time_str'][l3_index], l2_index,timestamp_dict['l2'][cell_id]['time_str'][l2_index] ))
                                 l2_index += 1
+                                suplus_temp += 1
         except Exception as result:
-            raise Exception('%s <%s>'%(mro_file, result))
+            raise Exception('-%s- %s <%s>'%(str(result.__traceback__.tb_lineno),mro_file, result))
 
     with open(gl.OUT_PATH, 'a') as file_object:
         file_object.write('test ok\n')
@@ -1404,6 +1430,7 @@ def test_add_mro_s_mapping():
                             #mr_Name匹配上, flag-1
                             if re.search(mr_name_entity, smr_entity.firstChild.data) == None or mro_item_dict[object_ue_id][mr_name_entity]['pos'] == -1:
                                 continue
+
                             if mr_name_entity == smr_entity.firstChild.data.split(' ')[mro_item_dict[object_ue_id][mr_name_entity]['pos']]:
                                 if mr_name_entity != 'MR.LteScRIP':
                                     #TODO: 得到value, 然后对应的加上
@@ -1465,7 +1492,7 @@ def test_add_mro_s_mapping():
                                                         mr_utils.out_text_dict_append_list(out_text_list, mrs_file_name, '[%s]-[prb:%s id:%d]=[%d(mro) != %d(mrs)]'%(mr_name, prb_entity, i,
                                                             mro_item_dict[object_ue_id][mr_name]['prbnum'][prb_entity]['item_num'][i] if mro_item_dict[object_ue_id][mr_name]['prbnum'][prb_entity]['item_num'].__contains__(i) == True else 0, int(value_entity_list[i])))
         except Exception as result:
-            raise Exception('<%s> MRO:%s MRS:%s'%(result, gl.MR_DICT[time_entity][0]['MRO'], gl.MR_DICT[time_entity][0]['MRS']))
+            raise Exception('-%s- <%s> MRO:%s MRS:%s'%(str(result.__traceback__.tb_lineno),result, gl.MR_DICT[time_entity][0]['MRO'], gl.MR_DICT[time_entity][0]['MRS']))
     with open(gl.OUT_PATH, 'a') as file_object:
         file_object.write('\n [' + ' add mro-mrs num mapping ' + ']:\n')
         temp_flag = 0
@@ -1481,6 +1508,7 @@ def mr_test_process():
     mr_utils.conf_xml_parse()
 
     mr_utils.MR_xml_init()
+
     #直接写测试需要的16个表单, 对应的函数
     with open(gl.OUT_PATH, 'w') as file_object:
         file_object.write(' '*14 + "<--------------LTE-TEST-RESULT-------------->")
@@ -1489,6 +1517,7 @@ def mr_test_process():
             test51_file_integrity()
         except Exception as result:
             write_info ('err in test_51: %s'%(result))
+
     if gl.TEST_CONF['test52'] == '1':
         try:
             test52_file_integrity()
@@ -1504,6 +1533,7 @@ def mr_test_process():
             test54_file_integrity()
         except Exception as result:
             write_info ('err in test_54: %s'%( result) )
+
     if gl.TEST_CONF['test55'] == '1':
         try:
             test55_file_integrity()
@@ -1514,6 +1544,7 @@ def mr_test_process():
             test56_file_integrity()
         except Exception as result:
             write_info ('err in test_56: %s'%( result))
+
     if gl.TEST_CONF['test57'] == '1':
         try:
             test57_file_integrity()
@@ -1524,6 +1555,7 @@ def mr_test_process():
             test58_file_integrity()
         except Exception as result:
             write_info ('err in test_58: %s' % (result))
+
     if gl.TEST_CONF['test59'] == '1':
         try:
             test59_file_integrity()
@@ -1544,26 +1576,31 @@ def mr_test_process():
             test63_file_accuracy()
         except Exception as result:
             write_info ('err in  test_63: %s'% (result))
+
     if gl.TEST_CONF['test71'] == '1':
         try:
             test71_file_accuracy()
         except Exception as result:
             write_info ('err in test_71: %s'% (result))
+
     if gl.TEST_CONF['test72'] == '1':
         try:
             test72_file_accuracy()
         except Exception as result:
             write_info ('err in test_72: %s' % (result))
+
     if gl.TEST_CONF['test73'] == '1':
         try:
             test73_file_accuracy()
         except Exception as result:
             write_info ('err in  test_73: %s' % (result))
+
     if gl.TEST_CONF['test_add_timestamp'] == '1':
         try:
             test_add_timestamp_number()
         except Exception as result:
             write_info ('err in test add timestamp: %s'% (result))
+
     try:
         test_add_mro_s_mapping()
     except Exception as result:
