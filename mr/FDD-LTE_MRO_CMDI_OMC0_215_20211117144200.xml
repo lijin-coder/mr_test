@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bulkPmMrDataFile>
+    <fileHeader fileFormatVersion="V2.0.2" reportTime="2021-11-17T14:43:00.221" startTime="2021-11-17T14:41:59.232" endTime="2021-11-17T14:42:58.624" period="0" jobid="67"/>
+    <eNB id="215">
+        <measurement>
+            <smr>MR.LteScPHR MR.LteScSinrUL</smr>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:01.280">
+                <v>53 33</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:03.328">
+                <v>53 NIL</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:05.376">
+                <v>53 34</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:07.424">
+                <v>53 34</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:09.472">
+                <v>53 NIL</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:11.520">
+                <v>53 33</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:13.568">
+                <v>53 NIL</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:15.616">
+                <v>53 NIL</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:17.664">
+                <v>53 NIL</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:19.712">
+                <v>53 NIL</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:21.760">
+                <v>53 NIL</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:23.808">
+                <v>53 33</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:25.856">
+                <v>52 34</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:27.904">
+                <v>52 34</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:29.952">
+                <v>52 33</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:32.000">
+                <v>52 35</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:34.048">
+                <v>52 34</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:36.096">
+                <v>53 33</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:38.144">
+                <v>53 33</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:40.192">
+                <v>52 35</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:42.240">
+                <v>52 34</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:44.288">
+                <v>52 34</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:46.336">
+                <v>52 35</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:48.384">
+                <v>52 35</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:50.432">
+                <v>53 34</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:52.480">
+                <v>53 34</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:54.528">
+                <v>53 NIL</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:56.576">
+                <v>53 33</v>
+            </object>
+            <object id="55255" MmeUeS1apId="33555133" MmeGroupId="1" MmeCode="1" TimeStamp="2021-11-17T14:42:58.624">
+                <v>53 33</v>
+            </object>
+        </measurement>
+        <measurement>
+            <smr>MR.LteScRIP</smr>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:01.280">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:01.280">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:01.280">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:03.328">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:03.328">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:03.328">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:05.376">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:05.376">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:05.376">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:07.424">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:07.424">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:07.424">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:09.472">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:09.472">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:09.472">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:11.520">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:11.520">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:11.520">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:13.568">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:13.568">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:13.568">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:15.616">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:15.616">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:15.616">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:17.664">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:17.664">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:17.664">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:19.712">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:19.712">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:19.712">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:21.760">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:21.760">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:21.760">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:23.808">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:23.808">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:23.808">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:25.856">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:25.856">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:25.856">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:27.904">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:27.904">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:27.904">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:29.952">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:29.952">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:29.952">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:32.000">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:32.000">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:32.000">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:34.048">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:34.048">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:34.048">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:36.096">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:36.096">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:36.096">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:38.144">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:38.144">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:38.144">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:40.192">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:40.192">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:40.192">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:42.240">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:42.240">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:42.240">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:44.288">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:44.288">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:44.288">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:46.336">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:46.336">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:46.336">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:48.384">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:48.384">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:48.384">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:50.432">
+                <v>60</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:50.432">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:50.432">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:52.480">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:52.480">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:52.480">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:54.528">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:54.528">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:54.528">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:56.576">
+                <v>59</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:56.576">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:56.576">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:2" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:58.624">
+                <v>61</v>
+            </object>
+            <object id="55255:9359:3" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:58.624">
+                <v>NIL</v>
+            </object>
+            <object id="55255:9359:7" MmeUeS1apId="NIL" MmeGroupId="NIL" MmeCode="NIL" TimeStamp="2021-11-17T14:42:58.624">
+                <v>NIL</v>
+            </object>
+        </measurement>
+    </eNB>
+</bulkPmMrDataFile>
