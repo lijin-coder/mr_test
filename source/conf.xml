@@ -27,6 +27,7 @@
         <test72>1</test72>
         <test73>1</test73>
         <test_add_timestamp>1</test_add_timestamp>
+        <test_add_mro_s_value>1</test_add_mro_s_value>
     </TEST_CONF>
     <MR_CONF>
         <SampleEndTime>0001-01-01T00:00:00Z</SampleEndTime>
@@ -38,11 +39,11 @@
         <PrbNum>0,1,2,3,4,5,6,7,8,9</PrbNum>
         <MeasureType>MRO,MRE,MRS</MeasureType>
         <SamplePeriod>2048</SamplePeriod>
-        <OmcName>OMC0</OmcName>
+        <OmcName>OMC0_2_2048</OmcName>
         <MrEnable>1</MrEnable>
         <SampleBeginTime>0001-01-01T00:00:00Z</SampleBeginTime>
         <MRECGIList>all</MRECGIList>
-        <MeasureItems>MR.LteScPHR,MR.LteScRIP,MR.LteScSinrUL,MR.GsmNcellBcch,MR.GsmNcellCarrierRSSI,MR.GsmNcellNcc,MR.GsmNcellBcc</MeasureItems>
+        <MeasureItems>MR.RSRP,MR.RSRQ,MR.ReceivedIPower,MR.PowerHeadRoom,MR.SinrUL,MR.RIPPRB,MR.LteScRSRP,MR.LteNcRSRP,MR.LteScRSRQ,MR.LteNcRSRQ,MR.LteScPHR,MR.LteScRIP,MR.LteScSinrUL,MR.LteScEarfcn,MR.LteScPci,MR.LteNcEarfcn,MR.LteNcPci,MR.GsmNcellBcch,MR.GsmNcellCarrierRSSI,MR.GsmNcellNcc,MR.GsmNcellBcc</MeasureItems>
     </MR_CONF>
     <TEST_OUT>
         <test_51 item_num="10" item1="1" item2="2" item3="3" item4="4"  item5="5" item6="6" item7="7" item8="8" item9="9" item10="10" />

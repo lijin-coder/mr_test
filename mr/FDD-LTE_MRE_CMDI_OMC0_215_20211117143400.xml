@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<bulkPmMrDataFile>
-    <fileHeader fileFormatVersion="V2.0.2" reportTime="2021-11-17T14:35:00.221" startTime="2021-11-17T14:34:00.000" endTime="2021-11-17T14:34:59.392" period="0" jobid="44"/>
-    <eNB id="215">
-        <measurement>
-            <smr>MR.GsmNcellBcch MR.GsmNcellCarrierRSSI MR.GsmNcellNcc MR.GsmNcellBcc</smr>
-        </measurement>
-    </eNB>
-</bulkPmMrDataFile>

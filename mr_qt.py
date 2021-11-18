@@ -7,6 +7,7 @@ from PyQt5.QtCore import QRect,Qt,pyqtSlot,QCoreApplication
 import user
 import mr_globel as gl
 
+
 create_qt_application = lambda : QApplication(sys.argv)
 '''
 ----------------------------------------------
@@ -41,6 +42,7 @@ class mr_ui_window(QMainWindow):
         self.text = self.text_edit('line', QRect(100, 220, 1000, 400))
 
         #conf.xml
+        self.check_conf_xml()
         self.label('conf',QRect(100, 100, 100, 30), '配置文件:', QFont('微软雅黑', 14, QFont.Bold))
         self.conf_path_label = self.label('conf_path',QRect(200, 100, 700, 30), self.conf_path, QFont('Consolas', 14, QFont.Normal))
         self.conf_path_label.setFrameShape(QFrame.Box)
@@ -157,14 +159,19 @@ class mr_ui_window(QMainWindow):
             for i in range(len(gl.str_info)):
                 self.text.append(gl.str_info[i])
             gl.str_info.clear()
-            self.cat_data_button.setEnabled(True)
-            self.test_push_button.setEnabled(True)
+
         except Exception as result:
             self.text.append ('mr test err <%s> -%s- :'%(result, str(result.__traceback__.tb_lineno)))
-
+        self.cat_data_button.setEnabled(True)
+        self.test_push_button.setEnabled(True)
     def cat_data_file(self):
         file_name = os.path.join(self.output_path, 'data.txt')
         os.startfile(file_name)
+
+    def check_conf_xml(self):
+        if os.path.exists(self.conf_path) == False:
+            with open(self.conf_path, 'w', encoding='UTF8') as file_object:
+                file_object.write(gl.CONF_XML_DATA)
 
 # write_info = lambda info:mr_ui_window.getText().append(info)
 
