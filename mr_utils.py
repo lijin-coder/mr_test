@@ -15,16 +15,17 @@ def MR_xml_init():
     re_search_str = gl.TEST_CONF['standard_LTE'] + '_MR'
     for file in file_list:
         full_file = os.path.join(gl.MR_TEST_PATH, file)
+        print (file)
         if  os.path.isdir(full_file) == False and re.search(re_search_str, file) != None:
 
             MR_FILE = {}
             MR_LIST = [{'MRO':'','MRE':'','MRS':''},{}, {}, {}]
 #这里之前没有换成局部变量,导致MR_LIST只能存储一个时间测量的MRO,MRE,MRS,现在改成局部变量
-
+            print (full_file)
             if MR_xml_file_name_accuracy(file) == False :
                 continue
             file_data_list = file.split('_')
-
+            print ('--->' + full_file)
             ##这一块暂时没有用
             MR_FILE['standard_LTE'] = file_data_list[0]
             MR_FILE['type'] = file_data_list[1]
@@ -122,6 +123,7 @@ def conf_xml_parse():
         for test_conf_entity in test_conf_list:
             for test_conf_dict_key_entity in gl.TEST_CONF:
                 gl.TEST_CONF[test_conf_dict_key_entity] = test_conf_entity.getElementsByTagName(test_conf_dict_key_entity)[0].firstChild.data
+
                 #print (test_conf_dict_key_entity + TEST_CONF[test_conf_dict_key_entity])
 
         #解析MR_CONF, 这个是下发的MR的测试命令
@@ -456,7 +458,13 @@ def is_mrs_measurement_smr_value_correct(mr_name, smr_str, value_str):
 
 def create_conf_xml(path):
     with open(path, 'w', encoding='UTF8') as file_object:
-        file_object.write(gl.CONF_XML_DATA)
+        file_object.write(gl.CONF_XML_DATA[0])
+        for item_key in gl.CONF_XML_DATA[1]:
+            file_object.write('        <{0}>{1}</{0}>\n'.format(item_key, gl.CONF_XML_DATA[1][item_key]))
+        file_object.write(gl.CONF_XML_DATA[2])
+        for item_key in gl.CONF_XML_DATA[3]:
+            file_object.write('        <{0}>{1}</{0}>\n'.format(item_key, gl.CONF_XML_DATA[3][item_key]))
+        file_object.write(gl.CONF_XML_DATA[4])
 
 def get_filename_omc_name(file_list):
     omcName = file_list[3]

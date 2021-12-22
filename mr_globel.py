@@ -28,7 +28,7 @@ TEST_CONF = {'test_total_time':'', 'cellid':'', 'enbid':'', 'event':'', 'standar
              'file_delay_time':'', 'is_57_out_excel':'', 'is_58_out_excel':'', 'is_59_out_excel':'',\
              'test51':'','test52':'','test53':'','test54':'','test55':'','test56':'','test57':'','test58':'','test59':'','test61':'',\
              'test62':'','test63':'','test71':'','test72':'','test73':'','test_add_timestamp':'', 'test_add_mro_s_value':''}
-MR_CONF = {'MrEnable':0, 'MrUrl':" ", 'MrUsername':" ", 'MrPassword': " ", 'MeasureType':" ", 'OmcName': " ", 'SamplePeriod': 0, 'UploadPeriod':0, 'SampleBeginTime':" ",'SampleEndTime': " ", 'PrbNum': " ", 'SubFrameNum':"", 'MRECGIList':'', 'MeasureItems':''}
+MR_CONF = {'MrEnable':'', 'MrUrl':"", 'MrUsername':"", 'MrPassword': "", 'MeasureType':"", 'OmcName': "", 'SamplePeriod': '', 'UploadPeriod':'', 'SampleBeginTime':"",'SampleEndTime': "", 'PrbNum': "", 'SubFrameNum':"", 'MRECGIList':'', 'MeasureItems':''}
 TEST_OUT = {'test_51' : [], 'test_52' : [], 'test_53' : [], 'test_54':[], 'test_55':[], 'test_56':[], 'test_57':[],'test_58':[],'test_59':[],'test_61':[],'test_62':[],'test_63':[],'test_71':[],'test_72':[],'test_73':[], 'test_81':[]}
 TEST_ITEM_LIST = []
 OUT_LIST_NAME = ['conf_xml_parse', 'MR_xml_init', 'test 51','test 52','test 53','test 54','test 55','test 56','test 57','test 58','test 59','test 61',\
@@ -36,56 +36,67 @@ OUT_LIST_NAME = ['conf_xml_parse', 'MR_xml_init', 'test 51','test 52','test 53',
 
 dom = []
 TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
+mr_create_time_dict = {}
+MR_REMOTE_FILE_TIME_DIST = {}
 
-
-CONF_XML_DATA = \
+CONF_XML_DATA = [
+##[0] - head
 '''<?xml version="1.0" encoding="UTF-8"?>
 <configure>
     <TEST_CONF>
-        <test_total_time>2</test_total_time>
-        <cellid>215</cellid>
-        <enbid>215</enbid>
-        <event>A1,A2,A3,A4,A5</event>
-        <standard_LTE>FDD-LTE</standard_LTE>
-        <OEM>CMDI</OEM>
-        <file_delay_time>30</file_delay_time>
-        <is_57_out_excel>0</is_57_out_excel>
-        <is_58_out_excel>0</is_58_out_excel>
-        <is_59_out_excel>0</is_59_out_excel>
-        <test51>1</test51>
-        <test52>1</test52>
-        <test53>1</test53>
-        <test54>1</test54>
-        <test55>1</test55>
-        <test56>1</test56>
-        <test57>1</test57>
-        <test58>1</test58>
-        <test59>1</test59>
-        <test61>1</test61>
-        <test62>1</test62>
-        <test63>1</test63>
-        <test71>1</test71>
-        <test72>1</test72>
-        <test73>1</test73>
-        <test_add_timestamp>1</test_add_timestamp>
-        <test_add_mro_s_value>1</test_add_mro_s_value>
-    </TEST_CONF>
+''',
+## [1] TEST_CONF- dict
+{
+    'test_total_time':      '2',
+    'cellid':               '215',
+    'enbid':                '215',
+    'event':                'A1,A2,A3,A4,A5',
+    'standard_LTE':         'FDD-LTE',
+    'OEM':                  'CMDI',
+    'file_delay_time':      '30',
+    'is_57_out_excel':      '0',
+    'is_58_out_excel':      '0',
+    'is_59_out_excel':      '0',
+    'test51':               '1',
+    'test52':               '1',
+    'test53':               '1',
+    'test54':               '1',
+    'test55':               '1',
+    'test56':               '1',
+    'test57':               '1',
+    'test58':               '1',
+    'test59':               '1',
+    'test61':               '1',
+    'test62':               '1',
+    'test63':               '1',
+    'test71':               '1',
+    'test72':               '1',
+    'test73':               '1',
+    'test_add_timestamp':   '1',
+    'test_add_mro_s_value': '1'
+},
+## [2]  TEST-conf  tail
+'''    </TEST_CONF>
     <MR_CONF>
-        <SampleEndTime>0001-01-01T00:00:00Z</SampleEndTime>
-        <MrPassword>test_mr</MrPassword>
-        <UploadPeriod>1</UploadPeriod>
-        <MrUrl>http://10.110.38.214:9000/pm</MrUrl>
-        <MrUsername>test_pm</MrUsername>
-        <SubFrameNum>2,3,7</SubFrameNum>
-        <PrbNum>0,1,2,3,4,5,6,7,8,9</PrbNum>
-        <MeasureType>MRO,MRE,MRS</MeasureType>
-        <SamplePeriod>2048</SamplePeriod>
-        <OmcName>OMC0_2_2048</OmcName>
-        <MrEnable>1</MrEnable>
-        <SampleBeginTime>0001-01-01T00:00:00Z</SampleBeginTime>
-        <MRECGIList>all</MRECGIList>
-        <MeasureItems>MR.RSRP,MR.RSRQ,MR.ReceivedIPower,MR.PowerHeadRoom,MR.SinrUL,MR.RIPPRB,MR.LteScRSRP,MR.LteNcRSRP,MR.LteScRSRQ,MR.LteNcRSRQ,MR.LteScPHR,MR.LteScRIP,MR.LteScSinrUL,MR.LteScEarfcn,MR.LteScPci,MR.LteNcEarfcn,MR.LteNcPci,MR.GsmNcellBcch,MR.GsmNcellCarrierRSSI,MR.GsmNcellNcc,MR.GsmNcellBcc</MeasureItems>
-    </MR_CONF>
+''',
+## [3] MR_CONF dict
+{       'SampleEndTime':        '0001-01-01T00:00:00Z',
+        'MrPassword':           'test_mr',
+        'UploadPeriod':         '1',
+        'MrUrl':                'http://10.110.38.214:9000/pm',
+        'MrUsername':           'test_pm',
+        'SubFrameNum':          '2,3,7',
+        'PrbNum':               '0,1,2,3,4,5,6,7,8,9',
+        'MeasureType':          'MRO,MRE,MRS',
+        'SamplePeriod':         '2048',
+        'OmcName':              'OMC0_2_2048',
+        'MrEnable':             '1',
+        'SampleBeginTime':      '0001-01-01T00:00:00Z',
+        'MRECGIList':           'all',
+        'MeasureItems':         'all'
+},
+##[4] TAIL
+'''    </MR_CONF>
     <TEST_OUT>
         <test_51 item_num="10" item1="1" item2="2" item3="3" item4="4"  item5="5" item6="6" item7="7" item8="8" item9="9" item10="10" />
         <test_52 item_num="7" item1="1" item2="2" item3="11" item4="12" item5="13" item6="14" item7="15" />
@@ -197,3 +208,5 @@ CONF_XML_DATA = \
     </ITEM_NAME>
 </configure>
 '''
+
+]
