@@ -28,13 +28,13 @@ class sftp_tool:
         trans = paramiko.Transport((remote_ip, int(remote_port)))
         trans.connect(username=ssh_user, password=ssh_passwd)
         self.sftp = paramiko.SFTPClient.from_transport(trans)
-    def get(self, remote_file_path, local_file_path, progress_bar=None):
+    def get(self, remote_file_path, local_file_path, progress_bar=None, filter='^.*\.xml$'):
         try:
             file_list = []#self.sftp.listdir(remote_file_path)
             x_attr = self.sftp.listdir_attr(remote_file_path)
-            print ("helo")
             for file in x_attr:
-                if "xml" in file.filename:
+                # if "xml" in file.filename:
+                if re.match(filter, file.filename) != None:
                     file_list.append(file.filename)
                     if gl.MR_REMOTE_FILE_TIME_DIST.__contains__(file.filename) == False:
                         gl.MR_REMOTE_FILE_TIME_DIST[file.filename] = file.st_mtime
@@ -317,6 +317,7 @@ class mr_dialog_path(QDialog):
     ssh_passwd = 'Bingo1993'
     remote_path = '/data/oran_sftp/pm_mr_mgmt/measurement/1/'
     locate_path = '.\\mr'
+    path_filter = '^.*\.xml$'
     is_quit = False
     def __init__(self, mainwindow, local_path):
         super().__init__(mainwindow)
@@ -344,14 +345,18 @@ class mr_dialog_path(QDialog):
         self.pathLabel = mr_qt_kit.label(self, 'label_path', QRect(50, 170, 50, 30), 'path:', QFont('consolas', 15, QFont.Normal))
         self.pathLine = mr_qt_kit.line_edit(self, 'line_path', QRect(110, 170, 400, 30), '/data/oran_sftp/pm_mr_mgmt/measurement/1/')
 
+        #filter TODO: add
+        self.filterLabel = mr_qt_kit.label(self, 'label_filter', QRect(50, 220, 70, 30), 'filter:', QFont('consolas', 15, QFont.Normal))
+        self.filterLine = mr_qt_kit.line_edit(self, 'line_filter', QRect(120, 220, 200, 30), self.path_filter)
+
         # #local path
         # self.lpathLabel = mr_qt_kit.label(self, 'label_lpath', QRect(50, 220, 50, 30), 'local:',  QFont('consolas', 11, QFont.Normal))
         # self.lpathLine = mr_qt_kit.line_edit(self, 'line_lpath', QRect(110, 220, 400, 30), '.\\mr')
         # mr_qt_kit.push_button(self, 'local_path_find', QRect(520, 220, 50, 30), '...', self.select_locate_file_path)
 
         #progress bar
-        self.downLabel = mr_qt_kit.label(self, 'label_download', QRect(50, 220, 100, 30), 'download:', QFont('consolas', 15, QFont.Normal))
-        self.progress_bar = mr_qt_kit.progress_bar(self, 'download_progress', QRect(110, 260, 400, 30))
+        self.downLabel = mr_qt_kit.label(self, 'label_download', QRect(50, 260, 100, 30), 'download:', QFont('consolas', 15, QFont.Normal))
+        self.progress_bar = mr_qt_kit.progress_bar(self, 'download_progress', QRect(110, 300, 400, 30))
 
         self.button_ok = mr_qt_kit.push_button(self, 'button_ok', QRect(400, 350, 50, 30), '确认' ,self.push_ok)
         self.button_quit = mr_qt_kit.push_button(self, 'button_quit', QRect(460, 350, 50, 30), 'quit', self.close)
@@ -367,10 +372,14 @@ class mr_dialog_path(QDialog):
             self.ssh_passwd = self.passLine.text()
         if self.pathLine.text() != '':
             self.remote_path = self.pathLine.text()
+        if self.filterLine.text() != '':
+            self.path_filter = self.filterLine.text()
+        else:
+            self.path_filter = '^.*\.xml$'
 
         print (self.locate_path)
         sftp = sftp_tool(self.remote_ip, self.remote_port, self.ssh_user, self.ssh_passwd)
-        sftp.get(self.remote_path, self.locate_path, self.progress_bar)
+        sftp.get(self.remote_path, self.locate_path, self.progress_bar, self.path_filter)
         self.button_ok.setEnabled(False)
         self.button_quit.setEnabled(False)
         self.close()
