@@ -23,21 +23,29 @@ TIME_OUTPUT_FORMAT = "%Y:%m:%d %H:%M:%S"
 MR_DICT = {}
 MR_TYPE = {'MRO':1, 'MRE':2, 'MRS':3}
 str_info = []
+IS_SSH_CONN = 0
 
-TEST_CONF = {'test_total_time':'', 'cellid':'', 'enbid':'', 'event':'', 'standard_LTE':'', 'OEM':'',  \
-             'file_delay_time':'', 'is_57_out_excel':'', 'is_58_out_excel':'', 'is_59_out_excel':'',\
-             'test51':'','test52':'','test53':'','test54':'','test55':'','test56':'','test57':'','test58':'','test59':'','test61':'',\
-             'test62':'','test63':'','test71':'','test72':'','test73':'','test_add_timestamp':'', 'test_add_mro_s_value':''}
+TEST_CONF = {'test_total_time':'', 'cellid':'', 'enbid':'', 'event':'', 'standard_LTE':'', 'OEM':'',
+             'file_delay_time':'', 'is_57_out_excel':'', 'is_58_out_excel':'', 'is_59_out_excel':'',
+             'test51':'','test52':'','test53':'','test54':'','test55':'','test56':'','test57':'','test58':'','test59':'','test61':'',
+             'test62':'','test63':'','test71':'','test72':'','test73':'','test_add_timestamp':'', 'test_add_mro_s_value':'',
+             'test_add_mre_event_num':'','mre_begin_time':'', 'mre_end_time':''}
 MR_CONF = {'MrEnable':'', 'MrUrl':"", 'MrUsername':"", 'MrPassword': "", 'MeasureType':"", 'OmcName': "", 'SamplePeriod': '', 'UploadPeriod':'', 'SampleBeginTime':"",'SampleEndTime': "", 'PrbNum': "", 'SubFrameNum':"", 'MRECGIList':'', 'MeasureItems':''}
 TEST_OUT = {'test_51' : [], 'test_52' : [], 'test_53' : [], 'test_54':[], 'test_55':[], 'test_56':[], 'test_57':[],'test_58':[],'test_59':[],'test_61':[],'test_62':[],'test_63':[],'test_71':[],'test_72':[],'test_73':[], 'test_81':[]}
+PM_CONF = {'Enable':'', 'Alias':'', 'URL':'', 'Username':'', 'Password':'', 'PeriodicUploadInterval':'', 'PeriodicUploadTime':''}
 TEST_ITEM_LIST = []
-OUT_LIST_NAME = ['conf_xml_parse', 'MR_xml_init', 'test 51','test 52','test 53','test 54','test 55','test 56','test 57','test 58','test 59','test 61',\
+OUT_LIST_NAME = ['conf_xml_parse', 'MR_xml_init', 'test 51','test 52','test 53','test 54','test 55','test 56','test 57','test 58','test 59','test 61',
                  'test 62','test 63','test 71','test 72','test 73','test_add_timestamp','end']
-
+INFORM_DICT = {}
 dom = []
 TIME_FORMAT = "%Y-%m-%dT%H:%M:%S.%f"
 mr_create_time_dict = {}
 MR_REMOTE_FILE_TIME_DIST = {}
+MR_DOWNLOAD_IP = ''
+
+#user-func global:
+test_mre_event_num_dict = {'A1':{'num':0, 'time_str':[]}, 'A2':{'num':0, 'time_str':[]}, 'A3':{'num':0, 'time_str':[]}, 'A4':{'num':0, 'time_str':[]}, 'A5':{'num':0, 'time_str':[]},
+                      'A6':{'num':0, 'time_str':[]}, 'B1':{'num':0, 'time_str':[]}, 'B2':{'num':0, 'time_str':[]}}
 
 CONF_XML_DATA = [
 ##[0] - head
@@ -73,7 +81,9 @@ CONF_XML_DATA = [
     'test72':               '1',
     'test73':               '1',
     'test_add_timestamp':   '1',
-    'test_add_mro_s_value': '1'
+    'test_add_mro_s_value': '1',
+    'mre_begin_time':       '0001-01-01T00:00:00.000',
+    'mre_end_time':         '0001-01-01T00:00:00.000'
 },
 ## [2]  TEST-conf  tail
 '''    </TEST_CONF>
@@ -97,6 +107,15 @@ CONF_XML_DATA = [
 },
 ##[4] TAIL
 '''    </MR_CONF>
+    <PM_CONF>
+        <Enable>1</Enable>
+        <Alias>Alias</Alias>
+        <URL>http://10.110.38.214:9000/pm</URL>
+        <Username>myftp_2</Username>
+        <Password>123</Password>
+        <PeriodicUploadInterval>300</PeriodicUploadInterval>
+        <PeriodicUploadTime>0001-01-01T00:01:00Z</PeriodicUploadTime>
+    </PM_CONF>
     <TEST_OUT>
         <test_51 item_num="10" item1="1" item2="2" item3="3" item4="4"  item5="5" item6="6" item7="7" item8="8" item9="9" item10="10" />
         <test_52 item_num="7" item1="1" item2="2" item3="11" item4="12" item5="13" item6="14" item7="15" />

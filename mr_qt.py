@@ -1,9 +1,11 @@
 import re
 import sys
 import os
+import time
+
 import PyQt5
 from PyQt5.QtWidgets import QApplication, QMainWindow, QDesktopWidget,QPushButton, QLabel, QFileDialog, QFrame, QTextEdit, QWidget, QDialog, QSpinBox, QLineEdit, QProgressBar,\
-            QCheckBox, QRadioButton, QGroupBox, QHBoxLayout, QVBoxLayout, QComboBox
+            QCheckBox, QRadioButton, QGroupBox, QHBoxLayout, QVBoxLayout, QComboBox, QScrollArea
 from PyQt5.QtGui import QIcon,QFont
 from PyQt5.QtCore import QRect,Qt,pyqtSlot,QCoreApplication
 import user
@@ -23,34 +25,7 @@ create_qt_application = lambda : QApplication(sys.argv)
         .......
 '''
 
-class sftp_tool:
-    def __init__(self, remote_ip, remote_port, ssh_user, ssh_passwd):
-        trans = paramiko.Transport((remote_ip, int(remote_port)))
-        trans.connect(username=ssh_user, password=ssh_passwd)
-        self.sftp = paramiko.SFTPClient.from_transport(trans)
-    def get(self, remote_file_path, local_file_path, progress_bar=None, filter='^.*\.xml$'):
-        try:
-            file_list = []#self.sftp.listdir(remote_file_path)
-            x_attr = self.sftp.listdir_attr(remote_file_path)
-            for file in x_attr:
-                # if "xml" in file.filename:
-                if re.match(filter, file.filename) != None:
-                    file_list.append(file.filename)
-                    if gl.MR_REMOTE_FILE_TIME_DIST.__contains__(file.filename) == False:
-                        gl.MR_REMOTE_FILE_TIME_DIST[file.filename] = file.st_mtime
-            progress_idx = 0
-            if progress_bar != None:
-                progress_bar.setMaximum(len(file_list))
-            for file in file_list:
-                print (file)
-                self.sftp.get(os.path.join(remote_file_path, file), os.path.join(local_file_path, file))
-                progress_idx += 1
-                if progress_bar != None :
-                    progress_bar.setValue(progress_idx)
 
-
-        except Exception as rt:
-            gl.str_info.append("%s %d"%(rt, rt.__traceback__.tb_lineno))
 
 class mr_qt_kit:
     @staticmethod
@@ -94,8 +69,8 @@ class mr_qt_kit:
         box = QSpinBox(object)
         box.setObjectName(name)
         box.setGeometry(rect)
-        box.setValue(data)
         box.setRange(*range)
+        box.setValue(data)
         box.setSingleStep(step)
         return box
     @staticmethod
@@ -139,6 +114,21 @@ class mr_qt_kit:
         cmbox.addItems(item_set)
         cmbox.setCurrentText(current_text)
         return cmbox
+    @staticmethod
+    def widget(object, name, rect):
+        wd = QWidget(object)
+        wd.setObjectName(name)
+        wd.setGeometry(rect)
+        return wd
+    @staticmethod
+    def scroll(object, name, rect, widget, size=(50, 50), policy=Qt.ScrollBarAsNeeded):
+        roll = QScrollArea(object)
+        roll.setObjectName(name)
+        roll.setGeometry(rect)
+        roll.setHorizontalScrollBarPolicy(policy)
+        roll.setMinimumSize(*size)
+        roll.setWidget(widget)
+        return roll
 
 class mr_dialog_conf(QDialog):
     def __init__(self, mainwindow):
@@ -153,72 +143,143 @@ class mr_dialog_conf(QDialog):
             self.setWindowIcon(QIcon('.\\source\\配置.ico'))
             self.headTitleLabel = mr_qt_kit.label(self, 'conf_label_title', QRect(325,0,150,50), 'MR配置', QFont('微软雅黑', 20, QFont.Bold), PyQt5.QtCore.Qt.AlignCenter)
 
+            #TEST widget
 
             self.label_testConf = mr_qt_kit.label(self, 'conf_label_testconf_title', QRect(10, 50, 120, 30), 'TEST_CONF', QFont('微软雅黑', 15, QFont.Normal))
+
+            self.wd_test = mr_qt_kit.widget(self, 'conf_widget_test', QRect(50, 90, 750, 700))
+            # wd_test.label_ts = mr_qt_kit.label(wd_test, 'conf_test', QRect(100, 100, 40, 40), 'test-test',  QFont('微软雅黑', 12, QFont.Normal))
+
             #test_total_time
-            self.label_testTotalTime = mr_qt_kit.label(self, 'conf_label_testtotaltime', QRect(50, 90, 120,30), '测试总时间:', QFont('微软雅黑', 12, QFont.Normal))
-            self.box_testTotalTime = mr_qt_kit.spinbox(self, 'conf_box_testtotaltime', QRect(200, 90, 60, 30), int(gl.TEST_CONF['test_total_time']), (1, 1000), 1)
-            self.label_testTotalTime_unit = mr_qt_kit.label(self, 'conf_label_testtotaltime_unit', QRect(265, 100, 40, 20), '小时')
+            test_height = 5
+            self.label_testTotalTime = mr_qt_kit.label(self.wd_test, 'conf_label_testtotaltime', QRect(50, test_height, 120,25), '测试总时间:', QFont('微软雅黑', 12, QFont.Normal))
+            self.box_testTotalTime = mr_qt_kit.spinbox(self.wd_test, 'conf_box_testtotaltime', QRect(200, test_height, 60, 25), float(gl.TEST_CONF['test_total_time']), (1, 1000), 1)
+            self.label_testTotalTime_unit = mr_qt_kit.label(self.wd_test, 'conf_label_testtotaltime_unit', QRect(265, test_height + 5, 40, 15), '小时')
 
             #cellid
-            self.label_testCellid = mr_qt_kit.label(self, 'conf_label_test_cellid', QRect(330, 90, 50, 30), 'cellid:', QFont('微软雅黑', 12, QFont.Normal))
-            self.line_testCellid = mr_qt_kit.line_edit(self, 'conf_lineedit_cellid', QRect(390, 90, 50, 30), gl.TEST_CONF['cellid'])
+            self.label_testCellid = mr_qt_kit.label(self.wd_test, 'conf_label_test_cellid', QRect(330, test_height, 50, 25), 'cellid:', QFont('微软雅黑', 12, QFont.Normal))
+            self.line_testCellid = mr_qt_kit.line_edit(self.wd_test, 'conf_lineedit_cellid', QRect(390, test_height, 50, 25), gl.TEST_CONF['cellid'])
             #enbid
-            self.label_testEnbid = mr_qt_kit.label(self, 'conf_label_test_enbid', QRect(450, 90, 50, 30), 'enbid:', QFont('微软雅黑', 12, QFont.Normal))
-            self.line_testEnbid = mr_qt_kit.line_edit(self, 'conf_lineedit_enbid', QRect(510, 90, 50, 30), gl.TEST_CONF['enbid'])
+            self.label_testEnbid = mr_qt_kit.label(self.wd_test, 'conf_label_test_enbid', QRect(450, test_height, 50, 30), 'enbid:', QFont('微软雅黑', 12, QFont.Normal))
+            self.line_testEnbid = mr_qt_kit.line_edit(self.wd_test, 'conf_lineedit_enbid', QRect(510, test_height, 50, 30), gl.TEST_CONF['enbid'])
             #event
-            self.label_testEvent = mr_qt_kit.label(self, 'conf_label_test_event', QRect(50, 130, 120, 30), 'event:', QFont('微软雅黑', 12, QFont.Normal))
-            self.ckbox_testEventA1 = mr_qt_kit.checkbox(self, 'conf_ckbox_eventA1', QRect(200, 130, 50, 30), 'A1', 'A1' in gl.TEST_CONF['event'])
-            self.ckbox_testEventA2 = mr_qt_kit.checkbox(self, 'conf_ckbox_eventA2', QRect(250, 130, 50, 30), 'A2', 'A2' in gl.TEST_CONF['event'])
-            self.ckbox_testEventA3 = mr_qt_kit.checkbox(self, 'conf_ckbox_eventA3', QRect(300, 130, 50, 30), 'A3', 'A3' in gl.TEST_CONF['event'])
-            self.ckbox_testEventA4 = mr_qt_kit.checkbox(self, 'conf_ckbox_eventA4', QRect(350, 130, 50, 30), 'A4', 'A4' in gl.TEST_CONF['event'])
-            self.ckbox_testEventA5 = mr_qt_kit.checkbox(self, 'conf_ckbox_eventA5', QRect(400, 130, 50, 30), 'A5', 'A5' in gl.TEST_CONF['event'])
-            self.ckbox_testEventA6 = mr_qt_kit.checkbox(self, 'conf_ckbox_eventA6', QRect(450, 130, 50, 30), 'A6', 'A6' in gl.TEST_CONF['event'])
-            self.ckbox_testEventB1 = mr_qt_kit.checkbox(self, 'conf_ckbox_eventB1', QRect(500, 130, 50, 30), 'B1', 'B1' in gl.TEST_CONF['event'])
-            self.ckbox_testEventB2 = mr_qt_kit.checkbox(self, 'conf_ckbox_eventB2', QRect(550, 130, 50, 30), 'B2', 'B2' in gl.TEST_CONF['event'])
+            test_height += 35
+            self.label_testEvent = mr_qt_kit.label(self.wd_test, 'conf_label_test_event', QRect(50, test_height, 120, 30), 'event:', QFont('微软雅黑', 12, QFont.Normal))
+            self.ckbox_testEventA1 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_eventA1', QRect(200, test_height, 50, 30), 'A1', 'A1' in gl.TEST_CONF['event'])
+            self.ckbox_testEventA2 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_eventA2', QRect(250, test_height, 50, 30), 'A2', 'A2' in gl.TEST_CONF['event'])
+            self.ckbox_testEventA3 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_eventA3', QRect(300, test_height, 50, 30), 'A3', 'A3' in gl.TEST_CONF['event'])
+            self.ckbox_testEventA4 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_eventA4', QRect(350, test_height, 50, 30), 'A4', 'A4' in gl.TEST_CONF['event'])
+            self.ckbox_testEventA5 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_eventA5', QRect(400, test_height, 50, 30), 'A5', 'A5' in gl.TEST_CONF['event'])
+            self.ckbox_testEventA6 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_eventA6', QRect(450, test_height, 50, 30), 'A6', 'A6' in gl.TEST_CONF['event'])
+            self.ckbox_testEventB1 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_eventB1', QRect(500, test_height, 50, 30), 'B1', 'B1' in gl.TEST_CONF['event'])
+            self.ckbox_testEventB2 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_eventB2', QRect(550, test_height, 50, 30), 'B2', 'B2' in gl.TEST_CONF['event'])
             #standard_LTE
-            self.label_testStandard_LTE = mr_qt_kit.label(self, 'conf_label_test_standardLTE', QRect(50, 170, 150, 30), 'standard_LTE:', QFont('微软雅黑', 12, QFont.Normal))
-            self.rdbox_testStandard_LTE_FDD = mr_qt_kit.radiobox(self, 'conf_rdbox_test_standard_LTE_FDD', QRect(220, 170, 60, 30), 'FDD-LTE', 'FDD-LTE' in gl.TEST_CONF['standard_LTE'])
-            self.rdbox_testStandard_LTE_TD = mr_qt_kit.radiobox(self, 'conf_rdbox_test_standard_LTE_TD', QRect(290, 170, 60, 30), 'TD-LTE', 'TD-LTE' in gl.TEST_CONF['standard_LTE'])
-            self.gpbox_testStandard_LTE = mr_qt_kit.groupbox(self, 'conf_gpbox_test_standard_LTE', QRect(200, 170, 300, 35), (self.rdbox_testStandard_LTE_FDD, self.rdbox_testStandard_LTE_TD), QHBoxLayout(self))
+            test_height += 40
+            self.label_testStandard_LTE = mr_qt_kit.label(self.wd_test, 'conf_label_test_standardLTE', QRect(50, test_height, 150, 30), 'standard_LTE:', QFont('微软雅黑', 12, QFont.Normal))
+            self.rdbox_testStandard_LTE_FDD = mr_qt_kit.radiobox(self.wd_test, 'conf_rdbox_test_standard_LTE_FDD', QRect(220, test_height, 60, 30), 'FDD-LTE', 'FDD-LTE' in gl.TEST_CONF['standard_LTE'])
+            self.rdbox_testStandard_LTE_TD = mr_qt_kit.radiobox(self.wd_test, 'conf_rdbox_test_standard_LTE_TD', QRect(290, test_height, 60, 30), 'TD-LTE', 'TD-LTE' in gl.TEST_CONF['standard_LTE'])
+            self.gpbox_testStandard_LTE = mr_qt_kit.groupbox(self.wd_test, 'conf_gpbox_test_standard_LTE', QRect(200, test_height, 300, 35), (self.rdbox_testStandard_LTE_FDD, self.rdbox_testStandard_LTE_TD), QHBoxLayout(self))
 
             #OEM
-            self.label_testOem = mr_qt_kit.label(self, 'conf_label_test_oem', QRect(50, 210, 80, 30), 'OEM', QFont('微软雅黑', 12, QFont.Normal))
-            self.line_testOem = mr_qt_kit.line_edit(self, 'conf_lineedit_oem', QRect(200, 210, 80, 30), gl.TEST_CONF['OEM'])
+            test_height += 40
+            self.label_testOem = mr_qt_kit.label(self.wd_test, 'conf_label_test_oem', QRect(50, test_height, 80, 30), 'OEM', QFont('微软雅黑', 12, QFont.Normal))
+            self.line_testOem = mr_qt_kit.line_edit(self.wd_test, 'conf_lineedit_oem', QRect(200, test_height, 80, 30), gl.TEST_CONF['OEM'])
             #file_delay_time
-            self.label_testFiledelayTime = mr_qt_kit.label(self, 'conf_label_file_delay_time', QRect(50, 250, 150, 30), '文件生成延时:', QFont('微软雅黑', 12, QFont.Normal))
-            self.spinbox_testFiledelaytime = mr_qt_kit.spinbox(self, 'conf_spinbox_file_delay_time', QRect(200, 250, 50, 30), int(gl.TEST_CONF['file_delay_time']))
-            self.label_testFiledelaytime_unit = mr_qt_kit.label(self, 'conf_label_file_delay_time_unit', QRect(260, 260, 50, 20), '分钟')
+            test_height += 40
+            self.label_testFiledelayTime = mr_qt_kit.label(self.wd_test, 'conf_label_file_delay_time', QRect(50, test_height, 150, 30), '文件生成延时:', QFont('微软雅黑', 12, QFont.Normal))
+            self.spinbox_testFiledelaytime = mr_qt_kit.spinbox(self.wd_test, 'conf_spinbox_file_delay_time', QRect(200, test_height, 50, 30), int(gl.TEST_CONF['file_delay_time']))
+            self.label_testFiledelaytime_unit = mr_qt_kit.label(self.wd_test, 'conf_label_file_delay_time_unit', QRect(260, test_height + 10, 50, 20), '分钟')
             #out_item: is_57_out_excel is_58_out_excel is_59_out_excel test51- test_add_timestamp test_add_mro_s_value
-            self.label_test_outitem = mr_qt_kit.label(self, 'conf_label_outitem', QRect(50, 290, 150, 30), '测试项输出:', QFont('微软雅黑', 12, QFont.Normal))
-            self.ckbox_test51 = mr_qt_kit.checkbox(self, 'conf_ckbox_test51', QRect(200, 290, 80, 15), 'test51', int(gl.TEST_CONF['test51']) == 1)
-            self.ckbox_test52 = mr_qt_kit.checkbox(self, 'conf_ckbox_test52', QRect(300, 290, 80, 15), 'test52', int(gl.TEST_CONF['test52']) == 1)
-            self.ckbox_test53 = mr_qt_kit.checkbox(self, 'conf_ckbox_test53', QRect(400, 290, 80, 15), 'test53', int(gl.TEST_CONF['test53']) == 1)
-            self.ckbox_test54 = mr_qt_kit.checkbox(self, 'conf_ckbox_test54', QRect(500, 290, 80, 15), 'test54', int(gl.TEST_CONF['test54']) == 1)
-            self.ckbox_test55 = mr_qt_kit.checkbox(self, 'conf_ckbox_test55', QRect(600, 290, 80, 15), 'test55', int(gl.TEST_CONF['test55']) == 1)
-            self.ckbox_test56 = mr_qt_kit.checkbox(self, 'conf_ckbox_test56', QRect(200, 310, 80, 15), 'test56', int(gl.TEST_CONF['test56']) == 1)
-            self.ckbox_test57 = mr_qt_kit.checkbox(self, 'conf_ckbox_test57', QRect(300, 310, 80, 15), 'test57', int(gl.TEST_CONF['test57']) == 1)
-            self.ckbox_test58 = mr_qt_kit.checkbox(self, 'conf_ckbox_test58', QRect(400, 310, 80, 15), 'test58', int(gl.TEST_CONF['test58']) == 1)
-            self.ckbox_test59 = mr_qt_kit.checkbox(self, 'conf_ckbox_test59', QRect(500, 310, 80, 15), 'test59', int(gl.TEST_CONF['test59']) == 1)
-            self.ckbox_test71 = mr_qt_kit.checkbox(self, 'conf_ckbox_test71', QRect(600, 310, 80, 15), 'test71', int(gl.TEST_CONF['test71']) == 1)
-            self.ckbox_test72 = mr_qt_kit.checkbox(self, 'conf_ckbox_test72', QRect(200, 330, 80, 15), 'test72', int(gl.TEST_CONF['test72']) == 1)
-            self.ckbox_test73 = mr_qt_kit.checkbox(self, 'conf_ckbox_test73', QRect(300, 330, 80, 15), 'test73', int(gl.TEST_CONF['test73']) == 1)
-            self.ckbox_testAddTimestamp = mr_qt_kit.checkbox(self, 'conf_ckbox_test_add_timestamp', QRect(400, 330, 150, 15), 'MRO-timeStamp', int(gl.TEST_CONF['test_add_timestamp']) == 1)
-            self.ckbox_testAddMrosvalue = mr_qt_kit.checkbox(self, 'conf_ckbox_test_add_mros_value', QRect(550, 330, 150, 15), 'mro-mrs diff', int(gl.TEST_CONF['test_add_mro_s_value']) == 1)
-            self.ckbox_test57_excel = mr_qt_kit.checkbox(self, 'conf_ckbox_test57_excel', QRect(200, 350, 150, 15), '57项输出excel文件', int(gl.TEST_CONF['is_57_out_excel']) == 1)
-            self.ckbox_test58_excel = mr_qt_kit.checkbox(self, 'conf_ckbox_test58_excel', QRect(350, 350, 150, 15), '58项输出excel文件', int(gl.TEST_CONF['is_58_out_excel']) == 1)
-            self.ckbox_test59_excel = mr_qt_kit.checkbox(self, 'conf_ckbox_test59_excel', QRect(500, 350, 150, 15), '59项输出excel文件', int(gl.TEST_CONF['is_59_out_excel']) == 1)
 
+            test_height += 40
+            self.label_test_outitem = mr_qt_kit.label(self.wd_test, 'conf_label_outitem', QRect(50, test_height, 150, 30), '测试项输出:', QFont('微软雅黑', 12, QFont.Normal))
+            self.ckbox_test51 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test51', QRect(200, test_height, 80, 15), 'test51', int(gl.TEST_CONF['test51']) == 1)
+            self.ckbox_test52 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test52', QRect(300, test_height, 80, 15), 'test52', int(gl.TEST_CONF['test52']) == 1)
+            self.ckbox_test53 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test53', QRect(400, test_height, 80, 15), 'test53', int(gl.TEST_CONF['test53']) == 1)
+            self.ckbox_test54 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test54', QRect(500, test_height, 80, 15), 'test54', int(gl.TEST_CONF['test54']) == 1)
+            self.ckbox_test55 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test55', QRect(600, test_height, 80, 15), 'test55', int(gl.TEST_CONF['test55']) == 1)
+
+            test_height += 40
+            self.ckbox_test56 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test56', QRect(200, test_height, 80, 15), 'test56', int(gl.TEST_CONF['test56']) == 1)
+            self.ckbox_test57 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test57', QRect(300, test_height, 80, 15), 'test57', int(gl.TEST_CONF['test57']) == 1)
+            self.ckbox_test58 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test58', QRect(400, test_height, 80, 15), 'test58', int(gl.TEST_CONF['test58']) == 1)
+            self.ckbox_test59 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test59', QRect(500, test_height, 80, 15), 'test59', int(gl.TEST_CONF['test59']) == 1)
+            self.ckbox_test71 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test71', QRect(600, test_height, 80, 15), 'test71', int(gl.TEST_CONF['test71']) == 1)
+
+            test_height += 40
+            self.ckbox_test72 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test72', QRect(200, test_height, 80, 15), 'test72', int(gl.TEST_CONF['test72']) == 1)
+            self.ckbox_test73 = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test73', QRect(300, test_height, 80, 15), 'test73', int(gl.TEST_CONF['test73']) == 1)
+            self.ckbox_testAddTimestamp = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test_add_timestamp', QRect(400, test_height, 150, 15), 'MRO-timeStamp', int(gl.TEST_CONF['test_add_timestamp']) == 1)
+            self.ckbox_testAddMrosvalue = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test_add_mros_value', QRect(550, test_height, 150, 15), 'mro-mrs diff', int(gl.TEST_CONF['test_add_mro_s_value']) == 1)
+
+            test_height += 40
+            self.ckbox_testAddmreEventnum = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test_add_mre_event_num', QRect(200, test_height, 150, 15), 'mre_event num', int(gl.TEST_CONF['test_add_mre_event_num']) == 1)
+
+            test_height += 40
+            self.ckbox_test57_excel = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test57_excel', QRect(200, test_height, 150, 15), '57项输出excel文件', int(gl.TEST_CONF['is_57_out_excel']) == 1)
+            self.ckbox_test58_excel = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test58_excel', QRect(350, test_height, 150, 15), '58项输出excel文件', int(gl.TEST_CONF['is_58_out_excel']) == 1)
+            self.ckbox_test59_excel = mr_qt_kit.checkbox(self.wd_test, 'conf_ckbox_test59_excel', QRect(500, test_height, 150, 15), '59项输出excel文件', int(gl.TEST_CONF['is_59_out_excel']) == 1)
+
+            test_height += 40
+
+            if gl.TEST_CONF['mre_begin_time'] == '0001-01-01T00:00:00.000' or re.match('^[0-9]{1,4}-([0-9]{1,2})-([0-9]{1,2})T([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2}).[0-9]{3}$', gl.TEST_CONF['mre_begin_time']) == None :
+                tm_begin_struct = time.localtime(time.time() - 86400)
+            else:
+                tm_begin_struct = time.localtime(ut.get_timestamp_by_str_format(gl.TEST_CONF['mre_begin_time']) / 1000)
+            mon_date_num = (31,
+                               28 if ( tm_begin_struct.tm_year + 1970) % 4 == 0 and (tm_begin_struct.tm_year + 1970) % 100 != 0 or (tm_begin_struct.tm_year + 1970) % 400 == 0 else 29,
+                               31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+            self.label_testMREeventnumBegin = mr_qt_kit.label(self.wd_test, 'conf_label_mre_event_num_begin', QRect(50, test_height, 150, 30), 'event begin-time:', QFont('微软雅黑', 12, QFont.Normal))
+            self.spinbox_testMREeventBeginYear = mr_qt_kit.spinbox(self.wd_test, 'conf_spinbox_mre_event_begin_year', QRect(200, test_height, 80, 30), tm_begin_struct.tm_year, (0, 9999)  )
+            self.label_testMREeventBeginYearUnit = mr_qt_kit.label(self.wd_test, 'conf_label_mre_event_begin_year_unit', QRect(280, test_height+5, 20, 25), '年', QFont('微软雅黑', 12, QFont.Normal))
+            self.spinbox_testMREeventBeginMonth = mr_qt_kit.spinbox(self.wd_test, 'conf_spinbox_mre_event_begin_month', QRect(300, test_height, 40, 30), tm_begin_struct.tm_mon, (1,12) )
+            self.label_testMREeventBeginMonthUnit = mr_qt_kit.label(self.wd_test, 'conf_label_mre_event_begin_month_unit', QRect(340, test_height+5, 20, 25), '月', QFont('微软雅黑', 12, QFont.Normal))
+            self.spinbox_testMREeventBeginDay = mr_qt_kit.spinbox(self.wd_test, 'conf_spinbox_mre_event_begin_day', QRect(360, test_height, 40, 30), tm_begin_struct.tm_mday , (1,  mon_date_num[tm_begin_struct.tm_mon-1]))
+            self.label_testMREeventBeginTunit = mr_qt_kit.label(self.wd_test, 'conf_label_mre_event_T_unit', QRect(410, test_height+5, 10, 25), 'T', QFont('微软雅黑', 12, QFont.Normal))
+            self.spinbox_testMREeventBeginHour = mr_qt_kit.spinbox(self.wd_test, 'conf_spinbox_mre_event_begin_hour', QRect(420, test_height, 40, 30), tm_begin_struct.tm_hour, (0, 23))
+            self.label_testMREeventBeginHourunit = mr_qt_kit.label(self.wd_test, 'conf_label_mre_event_begin_hour_unit', QRect(470, test_height+5, 10, 25), ':', QFont('微软雅黑', 12, QFont.Normal))
+            self.spinbox_testMREeventBeginMin = mr_qt_kit.spinbox(self.wd_test, 'conf_spinbox_mre_event_begin_minute', QRect(480, test_height, 40, 30), tm_begin_struct.tm_min, (0, 59))
+            self.label_testMREeventBeginMinunit = mr_qt_kit.label(self.wd_test, 'conf_label_mre_event_begin_min_unit', QRect(530, test_height+5, 10, 25), ':', QFont('微软雅黑', 12, QFont.Normal))
+            self.spinbox_testMREeventBeginSec = mr_qt_kit.spinbox(self.wd_test, 'conf_spinbox_mre_event_begin_second', QRect(540, test_height, 40, 30), tm_begin_struct.tm_sec, (0, 59))
+            self.label_testMREeventBeginSecunit = mr_qt_kit.label(self.wd_test, 'conf_label_mre_event_begin_second_unit', QRect(590, test_height + 5, 10, 25), '.', QFont('微软雅黑', 12, QFont.Normal))
+            self.spinbox_testMREeventBeginMsec = mr_qt_kit.spinbox(self.wd_test, 'conf_spinbox_mre_event_begin_msecond', QRect(600, test_height, 60, 30), int(gl.TEST_CONF['mre_begin_time'].split('.')[-1]), (0, 999))
+
+            test_height += 40
+            if gl.TEST_CONF['mre_end_time'] == '0001-01-01T00:00:00.000' or re.match('^[0-9]{1,4}-([0-9]{1,2})-([0-9]{1,2})T([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2}).[0-9]{3}$', gl.TEST_CONF['mre_end_time']) == None :
+                tm_end_struct = time.localtime(time.time() )
+            else:
+                tm_end_struct = time.localtime(ut.get_timestamp_by_str_format(gl.TEST_CONF['mre_end_time'])/1000 )
+            self.label_testMREeventnumEnd = mr_qt_kit.label(self.wd_test, 'conf_label_mre_event_num_end', QRect(50, test_height, 150, 30), 'event end-time:', QFont('微软雅黑', 12, QFont.Normal))
+            self.spinbox_testMREeventEndYear = mr_qt_kit.spinbox(self.wd_test, 'conf_spinbox_mre_event_end_year', QRect(200, test_height, 80, 30), tm_end_struct.tm_year, (0, 9999)  )
+            self.label_testMREeventEndYearUnit = mr_qt_kit.label(self.wd_test, 'conf_label_mre_event_end_year_unit', QRect(280, test_height+5, 20, 25), '年', QFont('微软雅黑', 12, QFont.Normal))
+            self.spinbox_testMREeventEndMonth = mr_qt_kit.spinbox(self.wd_test, 'conf_spinbox_mre_event_end_month', QRect(300, test_height, 40, 30), tm_end_struct.tm_mon, (1,12) )
+            self.label_testMREeventEndMonthUnit = mr_qt_kit.label(self.wd_test, 'conf_label_mre_event_end_month_unit', QRect(340, test_height+5, 20, 25), '月', QFont('微软雅黑', 12, QFont.Normal))
+            self.spinbox_testMREeventEndDay = mr_qt_kit.spinbox(self.wd_test, 'conf_spinbox_mre_event_end_day', QRect(360, test_height, 40, 30), tm_end_struct.tm_mday , (1,  mon_date_num[tm_end_struct.tm_mon-1]))
+            self.label_testMREeventEndTunit = mr_qt_kit.label(self.wd_test, 'conf_label_mre_event_end_T_unit', QRect(410, test_height+5, 10, 25), 'T', QFont('微软雅黑', 12, QFont.Normal))
+            self.spinbox_testMREeventEndHour = mr_qt_kit.spinbox(self.wd_test, 'conf_spinbox_mre_event_end_hour', QRect(420, test_height, 40, 30), tm_end_struct.tm_hour, (0, 23))
+            self.label_testMREeventEndHourunit = mr_qt_kit.label(self.wd_test, 'conf_label_mre_event_End_hour_unit', QRect(470, test_height+5, 10, 25), ':', QFont('微软雅黑', 12, QFont.Normal))
+            self.spinbox_testMREeventEndMin = mr_qt_kit.spinbox(self.wd_test, 'conf_spinbox_mre_event_end_minute', QRect(480, test_height, 40, 30), tm_end_struct.tm_min, (0, 59))
+            self.label_testMREeventEndMinunit = mr_qt_kit.label(self.wd_test, 'conf_label_mre_event_end_min_unit', QRect(530, test_height+5, 10, 25), ':', QFont('微软雅黑', 12, QFont.Normal))
+            self.spinbox_testMREeventEndSec = mr_qt_kit.spinbox(self.wd_test, 'conf_spinbox_mre_event_end_second', QRect(540, test_height, 40, 30), tm_end_struct.tm_sec, (0, 59))
+            self.label_testMREeventEndSecunit = mr_qt_kit.label(self.wd_test, 'conf_label_mre_event_end_second_unit', QRect(590, test_height + 5, 10, 25), '.', QFont('微软雅黑', 12, QFont.Normal))
+            self.spinbox_testMREeventEndMsec = mr_qt_kit.spinbox(self.wd_test, 'conf_spinbox_mre_event_end_msecond', QRect(600, test_height, 60, 30), int(gl.TEST_CONF['mre_end_time'].split('.')[-1]), (0, 999))
+
+
+            test_height += 40
+            self.wd_test.setGeometry(QRect(50, 90, 750, test_height))
+            self.scroll_test = mr_qt_kit.scroll(self, 'scroll_conf_test', QRect(10, 90, 780, 250), self.wd_test, (780, 250))
             #MR-conf
             self.label_mr_conf_title = mr_qt_kit.label(self, 'conf_label_testmrtitle', QRect(10, 370, 100, 30), 'MR_CONF', QFont('微软雅黑', 15, QFont.Normal))
 
+            self.wd_mr_conf = mr_qt_kit.widget(self, 'conf_widget_mr_conf', QRect())
             #UploadPeriod
             self.label_testuploadPeriod = mr_qt_kit.label(self, 'conf_label_uploadPeroid', QRect(50, 400, 100, 30), '文件上报周期:', QFont('微软雅黑', 12, QFont.Normal))
             self.spinbox_testUploadPeriod = mr_qt_kit.spinbox(self, 'conf_spinbox_uploadPeroid', QRect(200, 400, 50, 20), int(gl.MR_CONF['UploadPeriod']))
             self.label_testuploadPeriod_unit = mr_qt_kit.label(self, 'conf_label_uploadPeriod_unit', QRect(250, 400, 50, 20), '分钟', QFont('微软雅黑', 12, QFont.Normal))
             #SamplePeriod
             self.label_testSamplePeriod = mr_qt_kit.label(self, 'conf_label_samplePeriod', QRect(320, 400, 110, 30), '采集上报周期:',  QFont('微软雅黑', 12, QFont.Normal))
-            self.combox_testSamplePeriod = mr_qt_kit.combobox(self, 'conf_combox_samplePeriod', QRect(440, 400, 50, 20), ('2048', '5120'), gl.MR_CONF['SamplePeriod'])
+            self.combox_testSamplePeriod = mr_qt_kit.combobox(self, 'conf_combox_samplePeriod', QRect(440, 400, 50, 20),
+                                                              ('2048', '5120', '10240', '60000', '360000', '720000', '1800000', '3600000'), gl.MR_CONF['SamplePeriod'])
             self.label_testSamplePeriod_unit = mr_qt_kit.label(self, 'conf_label_samplePeriod_unit', QRect(500, 400, 50, 20), 'ms', QFont('微软雅黑', 12, QFont.Normal))
             #SubFrameNum
             self.label_testSubFrameNum = mr_qt_kit.label(self, 'conf_label_subframenum', QRect(50, 430, 100, 20), '子帧:', QFont('微软雅黑', 12, QFont.Normal))
@@ -262,6 +323,7 @@ class mr_dialog_conf(QDialog):
             self.button_ok = mr_qt_kit.push_button(self, 'conf_button_ok', QRect(500, 610, 50, 30), '确认', self.push_ok)
             self.button_quit = mr_qt_kit.push_button(self, 'conf_button_quit', QRect(560, 610, 50, 30), '退出', self.push_quit)
 
+
             self.show()
         except Exception as rt:
             print (str(rt) + str(rt.__traceback__.tb_lineno))
@@ -270,10 +332,11 @@ class mr_dialog_conf(QDialog):
                        'test51':self.ckbox_test51, 'test52':self.ckbox_test52, 'test53':self.ckbox_test53, 'test54':self.ckbox_test54, 'test55':self.ckbox_test55,
                         'test56':self.ckbox_test56, 'test57':self.ckbox_test57, 'test58':self.ckbox_test58, 'test59':self.ckbox_test59,
                        'test71':self.ckbox_test71, 'test72':self.ckbox_test72, 'test73':self.ckbox_test73,
-                        'test_add_timestamp':self.ckbox_testAddTimestamp, 'test_add_mro_s_value':self.ckbox_testAddMrosvalue }
+                        'test_add_timestamp':self.ckbox_testAddTimestamp, 'test_add_mro_s_value':self.ckbox_testAddMrosvalue, 'test_add_mre_event_num':self.ckbox_testAddmreEventnum }
         set_subfram = (self.ckbox_sub0, self.ckbox_sub1, self.ckbox_sub2,self.ckbox_sub3, self.ckbox_sub4, self.ckbox_sub5, self.ckbox_sub6,
                 self.ckbox_sub7,self.ckbox_sub8,self.ckbox_sub9 )
-        set_event = (self.ckbox_testEventA1, self.ckbox_testEventA2, self.ckbox_testEventA3, self.ckbox_testEventA4, self.ckbox_testEventA5, self.ckbox_testEventA6, self.ckbox_testEventB1, self.ckbox_testEventB2)
+        set_event = (self.ckbox_testEventA1, self.ckbox_testEventA2, self.ckbox_testEventA3, self.ckbox_testEventA4,
+                     self.ckbox_testEventA5, self.ckbox_testEventA6, self.ckbox_testEventB1, self.ckbox_testEventB2)
         set_mrType = (self.ckbox_mro, self.ckbox_mre, self.ckbox_mrs)
         gl.CONF_XML_DATA[1]['test_total_time'] = self.box_testTotalTime.text()
         gl.CONF_XML_DATA[1]['cellid'] = self.line_testCellid.text()
@@ -294,6 +357,17 @@ class mr_dialog_conf(QDialog):
         gl.CONF_XML_DATA[3]['OmcName'] = self.line_omcName.text()
         gl.CONF_XML_DATA[3]['MRECGIList'] = self.line_MRECGIList.text()
         gl.CONF_XML_DATA[3]['MeasureItems'] = self.line_MeasureItems.text()
+
+        mre_time_begin = ut.construct_timestr((self.spinbox_testMREeventBeginYear.value(), self.spinbox_testMREeventBeginMonth.value(), self.spinbox_testMREeventBeginDay.value(),
+                                               self.spinbox_testMREeventBeginHour.value(), self.spinbox_testMREeventBeginMin.value(), self.spinbox_testMREeventBeginSec.value(),
+                                               self.spinbox_testMREeventBeginMsec.value()))
+        mre_time_end = ut.construct_timestr((self.spinbox_testMREeventEndYear.value(), self.spinbox_testMREeventEndMonth.value(), self.spinbox_testMREeventEndDay.value(),
+                                             self.spinbox_testMREeventEndHour.value(), self.spinbox_testMREeventEndMin.value(), self.spinbox_testMREeventEndSec.value(),
+                                             self.spinbox_testMREeventEndMsec.value()))
+        if ut.get_timestamp_by_str_format(mre_time_begin) < ut.get_timestamp_by_str_format(mre_time_end):
+            gl.CONF_XML_DATA[1]['mre_begin_time'] = mre_time_begin
+            gl.CONF_XML_DATA[1]['mre_end_time'] = mre_time_end
+
 
         full_file_name = os.path.join(gl.SOURCE_PATH, "conf.xml")
         ut.create_conf_xml(full_file_name)
@@ -329,25 +403,29 @@ class mr_dialog_path(QDialog):
         self.setWindowIcon(QIcon('.\\source\\问题.ico'))
         self.headTitleLabel = mr_qt_kit.label(self, 'path_label_title', QRect(225,0,150,50), 'MR下载', QFont('微软雅黑', 20, QFont.Bold), PyQt5.QtCore.Qt.AlignCenter)
         #ip
+
+
+
         self.ipLabel = mr_qt_kit.label(self, 'label_ip', QRect(50, 60, 50, 30), 'ip:', QFont('consolas', 15, QFont.Normal))
-        self.ipLine = mr_qt_kit.line_edit(self, 'text_ip', QRect(110, 65, 200, 25), '10.110.38.226')
+        self.ipCombox = mr_qt_kit.combobox(self, 'text_ip', QRect(110, 65, 200, 25), ut.get_dict_key_list(gl.INFORM_DICT), ut.get_dict_key_list(gl.INFORM_DICT)[0])
+        self.ipCombox.currentTextChanged.connect(self.download_ip_select_changed)
         #port
         self.portLabel = mr_qt_kit.label(self, 'label_port', QRect(330, 60, 50, 30), 'port:', QFont('consolas', 15, QFont.Normal))
         self.portbox = mr_qt_kit.spinbox(self, 'box_port', QRect(390, 60, 50, 30), 22, (1,1023), 1)
 
         #user passwd
         self.userLabel = mr_qt_kit.label(self, 'label_user', QRect(50, 120, 50, 30), 'user:', QFont('consolas', 15, QFont.Normal))
-        self.userLine = mr_qt_kit.line_edit(self, 'line_user',QRect(110, 120, 100, 30), 'root' )
+        self.userLine = mr_qt_kit.line_edit(self, 'line_user', QRect(110, 120, 100, 30), gl.INFORM_DICT[self.ipCombox.currentText()]['user'])
         self.passLabel = mr_qt_kit.label(self, 'label_pass', QRect(220, 120, 50, 30), 'pass:',QFont('consolas', 15, QFont.Normal))
-        self.passLine = mr_qt_kit.line_edit(self, 'line_pass', QRect(280, 120, 200, 30), '', QLineEdit.Password)
+        self.passLine = mr_qt_kit.line_edit(self, 'line_pass', QRect(280, 120, 200, 30), gl.INFORM_DICT[self.ipCombox.currentText()]['passwd'], QLineEdit.Password)
 
         #path
         self.pathLabel = mr_qt_kit.label(self, 'label_path', QRect(50, 170, 50, 30), 'path:', QFont('consolas', 15, QFont.Normal))
-        self.pathLine = mr_qt_kit.line_edit(self, 'line_path', QRect(110, 170, 400, 30), '/data/oran_sftp/pm_mr_mgmt/measurement/1/')
+        self.pathLine = mr_qt_kit.line_edit(self, 'line_path', QRect(110, 170, 400, 30), gl.INFORM_DICT[self.ipCombox.currentText()]['path'])
 
         #filter TODO: add
         self.filterLabel = mr_qt_kit.label(self, 'label_filter', QRect(50, 220, 70, 30), 'filter:', QFont('consolas', 15, QFont.Normal))
-        self.filterLine = mr_qt_kit.line_edit(self, 'line_filter', QRect(120, 220, 200, 30), self.path_filter)
+        self.filterLine = mr_qt_kit.line_edit(self, 'line_filter', QRect(120, 220, 200, 30), gl.INFORM_DICT[self.ipCombox.currentText()]['filter'])
 
         # #local path
         # self.lpathLabel = mr_qt_kit.label(self, 'label_lpath', QRect(50, 220, 50, 30), 'local:',  QFont('consolas', 11, QFont.Normal))
@@ -358,12 +436,20 @@ class mr_dialog_path(QDialog):
         self.downLabel = mr_qt_kit.label(self, 'label_download', QRect(50, 260, 100, 30), 'download:', QFont('consolas', 15, QFont.Normal))
         self.progress_bar = mr_qt_kit.progress_bar(self, 'download_progress', QRect(110, 300, 400, 30))
 
+        self.downshowLabel = mr_qt_kit.label(self, 'label_download_show', QRect(50, 330, 500, 30), '', QFont('consolas', 10, QFont.Normal))
+
         self.button_ok = mr_qt_kit.push_button(self, 'button_ok', QRect(400, 350, 50, 30), '确认' ,self.push_ok)
         self.button_quit = mr_qt_kit.push_button(self, 'button_quit', QRect(460, 350, 50, 30), 'quit', self.close)
         self.show()
+    def download_ip_select_changed(self):
+        #当ip 改变的时候，改变后面的path，passwd的数据显示
+        self.userLine.setText(gl.INFORM_DICT[self.ipCombox.currentText()]['user'])
+        self.passLine.setText(gl.INFORM_DICT[self.ipCombox.currentText()]['passwd'])
+        self.pathLine.setText(gl.INFORM_DICT[self.ipCombox.currentText()]['path'])
+        self.filterLine.setText(gl.INFORM_DICT[self.ipCombox.currentText()]['filter'])
     def push_ok(self):
-        if self.ipLine.text() != '':#TODO:re.match
-            self.remote_ip = self.ipLine.text()
+        if self.ipCombox.currentText() != '':#TODO:re.match
+            gl.MR_DOWNLOAD_IP = self.remote_ip = self.ipCombox.currentText()
         if self.portbox.text() != '' and int(self.portbox.text()) < 1024 and int(self.portbox.text()) > 0:
             self.remote_port = self.portbox.text()
         if self.userLine.text() != '' :
@@ -371,17 +457,21 @@ class mr_dialog_path(QDialog):
         if self.passLine.text() != '':
             self.ssh_passwd = self.passLine.text()
         if self.pathLine.text() != '':
-            self.remote_path = self.pathLine.text()
+            self.remote_path = self.pathLine.text() + '/'
         if self.filterLine.text() != '':
             self.path_filter = self.filterLine.text()
         else:
             self.path_filter = '^.*\.xml$'
-
-        print (self.locate_path)
-        sftp = sftp_tool(self.remote_ip, self.remote_port, self.ssh_user, self.ssh_passwd)
-        sftp.get(self.remote_path, self.locate_path, self.progress_bar, self.path_filter)
+        gl.INFORM_DICT[self.remote_ip] = {'user':self.ssh_user, 'passwd':self.ssh_passwd, 'path':self.remote_path, 'filter':self.path_filter}
         self.button_ok.setEnabled(False)
         self.button_quit.setEnabled(False)
+        # print (self.locate_path)
+        sftp = ut.sftp_tool(self.remote_ip, self.remote_port, self.ssh_user, self.ssh_passwd)
+        sftp.get(self.remote_path, self.locate_path, self.progress_bar, self.path_filter, self.downshowLabel)
+        self.button_ok.setEnabled(True)
+        self.button_quit.setEnabled(True)
+        ut.write_inform_file()
+        gl.IS_SSH_CONN = 1
         self.close()
     def select_locate_file_path(self):
         self.locate_path = QFileDialog.getExistingDirectory(self, '浏览', '.\\')
@@ -409,10 +499,10 @@ class mr_ui_window(QMainWindow):
         self.setWindowIcon(QIcon('.\\source\\thinking.ico'))
         #标题
         mr_qt_kit.label(self, 'mr_title',QRect(450,0,300,100), 'mr测试程序',QFont('微软雅黑', 20, QFont.Bold), PyQt5.QtCore.Qt.AlignCenter)
-        self.text = mr_qt_kit.text_edit(self, 'line', QRect(100, 220, 1000, 400))
+
 
         #conf.xml
-        self.check_conf_xml()
+        ut.check_conf_xml(self.conf_path)
         mr_qt_kit.label(self, 'conf',QRect(100, 100, 100, 30), '配置文件:', QFont('微软雅黑', 14, QFont.Bold))
         self.conf_path_label = mr_qt_kit.label(self, 'conf_path',QRect(200, 100, 700, 30), self.conf_path, QFont('Consolas', 14, QFont.Normal))
         self.conf_path_label.setFrameShape(QFrame.Box)
@@ -431,6 +521,9 @@ class mr_ui_window(QMainWindow):
         self.output_path_label = mr_qt_kit.label(self, 'output_path', QRect(200, 180, 700, 30), self.output_path, QFont('Consolas', 14, QFont.Normal))
         self.output_path_label.setFrameShape(QFrame.Box)
         mr_qt_kit.push_button(self, 'output_path_find', QRect(910, 180, 50, 30), '浏览', self.select_output_file_path)
+
+        #text output
+        self.text = mr_qt_kit.text_edit(self, 'line', QRect(100, 220, 1000, 400))
 
         #start test push_button
         self.test_push_button = mr_qt_kit.push_button(self, 'test_push_button', QRect(910, 650, 70, 30), '开始测试', self.mr_test_start)
@@ -503,6 +596,7 @@ class mr_ui_window(QMainWindow):
             self.test_push_button.setEnabled(False)
             gl.MR_TEST_PATH = self.mr_path + '\\'
             gl.OUTPUT_PATH = self.output_path + '\\'
+            print (gl.OUTPUT_PATH)
 
             user.mr_test_process()
 
@@ -519,21 +613,101 @@ class mr_ui_window(QMainWindow):
         file_name = os.path.join(self.output_path, 'data.txt')
         os.startfile(file_name)
 
-    def check_conf_xml(self):
-        if os.path.exists(self.conf_path) == False:
-            ut.create_conf_xml(self.conf_path)
-        else:
-            first_line = ''
-            with open(self.conf_path, 'r', encoding='UTF8') as file_object:
-                first_line = file_object.readline()
-            if '<?xml version="1.0" encoding="UTF-8"?>'  in first_line:
-                print ('conf.xml correct')
-            else:
-                os.remove(self.conf_path)
-                ut.create_conf_xml(self.conf_path)
+
 
     def mod_conf(self):
         conf_window = mr_dialog_conf(self)
 # write_info = lambda info:mr_ui_window.getText().append(info)
 
+class pm_config_dialog(QDialog):
+    def __init__(self):
+        super().__init__()
+
+    def init_ui(self):
+        pass
+
+
+class pm_ui_window(QDialog):
+    conf_path = '.\\source\\conf.xml'
+    output_path = '.\\output'
+    def __init__(self):
+        super().__init__()
+        self.init_ui()
+    def init_ui(self):
+        self.resize(1200, 800)
+        self.setWindowTitle('pm test')
+        self.setWindowIcon(QIcon('.\\source\\thinking.ico'))
+        height = 0
+        mr_qt_kit.label(self, 'pm_title',QRect(450,0,300,100), 'pm测试程序',QFont('微软雅黑', 20, QFont.Bold), PyQt5.QtCore.Qt.AlignCenter)
+        #conf.xml
+
+        ut.check_conf_xml(self.conf_path)
+        height += 100
+        mr_qt_kit.label(self, 'conf_pm',QRect(100, height, 100, 30), '配置:', QFont('微软雅黑', 14, QFont.Bold))
+        self.conf_path_label = mr_qt_kit.label(self, 'pm_conf_path',QRect(200, height, 700, 30), self.conf_path, QFont('Consolas', 14, QFont.Normal))
+        self.conf_path_label.setFrameShape(QFrame.Box)
+
+        self.conf_mod_button = mr_qt_kit.push_button(self, 'pm_conf_mod', QRect(910, height, 50, 30), '配置', self.mod_conf)
+
+        #output_path
+        height += 50
+        mr_qt_kit.label(self, 'output', QRect(100, height, 100, 30), '输出路径:', QFont('微软雅黑', 14, QFont.Bold))
+        self.output_path_label = mr_qt_kit.label(self, 'output_path', QRect(200, height, 700, 30), self.output_path, QFont('Consolas', 14, QFont.Normal))
+        self.output_path_label.setFrameShape(QFrame.Box)
+        mr_qt_kit.push_button(self, 'output_path_find', QRect(910, height, 50, 30), '浏览', self.select_output_file_path)
+
+        #text output
+        height += 50
+        self.text = mr_qt_kit.text_edit(self, 'line', QRect(100, height, 1000, 400))
+
+        #start test push_button
+        self.test_push_button = mr_qt_kit.push_button(self, 'test_push_button', QRect(910, 650, 70, 30), '开始测试', self.pm_test_start)
+        self.cat_data_button = mr_qt_kit.push_button(self, 'cat_data_button', QRect(990, 650, 70, 30), '查看结果', self.cat_data_file)
+        self.cat_data_button.setEnabled(False)
+        self.quit_push_button = mr_qt_kit.push_button(self, 'quit_push_button', QRect(990, 690, 70, 30), 'QUIT', QCoreApplication.instance().quit)
+
+        self.show()
+
+    def mod_conf(self):
+        pass
+    def pm_test_start(self):
+        self.cat_data_button.setEnabled(True)
+    def select_output_file_path(self):
+        self.output_path = QFileDialog.getExistingDirectory(self, '浏览', '.\\')
+        if self.output_path == '':
+            self.output_path = '.\\output'
+        self.output_path_label.setText(self.output_path)
+    def cat_data_file(self):
+        file_name = os.path.join(self.output_path, 'data.txt')
+        os.startfile(file_name)
+class pm_mr_dialog(QDialog):
+
+    def __init__(self):
+        super().__init__()
+        self.init_ui()
+        self.init_config()
+    def init_ui(self):
+        ut.init_inform_dict()
+        self.resize(600, 400)
+        self.setWindowTitle('mt test')
+        self.setWindowIcon(QIcon('.\\source\\thinking.ico'))
+        self.mr_test_button = mr_qt_kit.push_button(self, "mr_test_button", QRect(100, 100, 100, 40), "mr_test", self.mr_test_ui)
+        self.pm_test_button = mr_qt_kit.push_button(self, "pm_test_button", QRect(300, 100, 100, 40), "pm_test", self.pm_test_ui)
+        self.show()
+    def mr_test_ui(self):
+        self.hide()
+        self.mr_test_ui_window = mr_ui_window()
+
+    def pm_test_ui(self):
+        #TODO: add pm file time_create offset test
+        self.hide()
+
+        try:
+            self.pm_test_ui_window = pm_ui_window()
+            user.pm_test_process()
+        except Exception as rt:
+            print ("%s %d"%(rt, rt.__traceback__.tb_lineno))
+        return
+    def init_config(self):
+        ut.init_inform_dict()
 

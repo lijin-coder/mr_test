@@ -9,6 +9,7 @@ import math
 import openpyxl
 import mr_globel as gl
 import mr_utils
+import shutil
 
 write_info = lambda info :gl.str_info.append(str(info))
 
@@ -16,22 +17,38 @@ write_info = lambda info :gl.str_info.append(str(info))
 def test51_file_integrity():
     mr_utils.test_out_data_item_header("test_51")
     date_time = mr_utils.get_time_format(gl.TIME_OUTPUT_FORMAT)
+    # time_sub = mr_utils.get_two_linux_time_sub()
     try:
         #统计预期的文件总数,计算: 测量总时长/测量周期
-        predict_file_num =  int(gl.TEST_CONF['test_total_time'])*3600 / (60 * int(gl.MR_CONF['UploadPeriod']) )
+        startTimestamp = 0
+        endTimestamp = mr_utils.get_timestamp_by_str_format('2030-01-01T00:00:00Z', '%Y-%m-%dT%H:%M:%SZ')
+        predict_file_num =  float(gl.TEST_CONF['test_total_time'])*3600 / (60 * int(gl.MR_CONF['UploadPeriod']) )
+        if gl.MR_CONF['SampleEndTime'] != '0001-01-01T00:00:00Z' and gl.MR_CONF['SampleBeginTime'] != '0001-01-01T00:00:00Z' :
+            startTimestamp = mr_utils.get_timestamp_by_str_format(gl.MR_CONF['SampleBeginTime'], '%Y-%m-%dT%H:%M:%SZ') / 1000
+            endTimestamp = mr_utils.get_timestamp_by_str_format(gl.MR_CONF['SampleEndTime'], '%Y-%m-%dT%H:%M:%SZ') / 1000
+            spec_timestamp = endTimestamp - startTimestamp
+            predict_file_num = (spec_timestamp - spec_timestamp%60) / (60 * int(gl.MR_CONF['UploadPeriod']) )
+        print (predict_file_num)
+        print (startTimestamp)
+        print (endTimestamp)
         mr_integrity_flag = 0
         mro_file_num = 0
         mre_file_num = 0
         mrs_file_num = 0
         #MRS文件数量统计
         for time_entity in gl.MR_DICT:
+            file_time_stamp = mr_utils.get_timestamp_by_str_format(time_entity, '%Y%m%d%H%M%S') / 1000 - 8 * 60*60
+
+            if file_time_stamp < startTimestamp  or file_time_stamp > endTimestamp :
+                print ('hello ss')
+                continue
             mro_file_name = gl.MR_DICT[time_entity][0]['MRO']
             mre_file_name = gl.MR_DICT[time_entity][0]['MRE']
             mrs_file_name = gl.MR_DICT[time_entity][0]['MRS']
             if mro_file_name != '':
-                if os.path.getsize(mro_file_name) == 0 or mr_utils.MR_xml_file_name_accuracy(mro_file_name) == False:
+                if os.path.getsize(mro_file_name) == 0 or mr_utils.MR_xml_file_name_accuracy(mro_file_name) == False :
                     mr_integrity_flag = mr_integrity_flag | (0x1 << 1)
-                else:
+                else :
                     mro_file_num += 1
             if mre_file_name != '':
                 if os.path.getsize(mre_file_name) == 0 or mr_utils.MR_xml_file_name_accuracy(mre_file_name) == False:
@@ -521,7 +538,7 @@ def test57_file_integrity():
                 break
 
 
-        full_name = os.path.join(gl.OUTPUT_PATH, gl.XLS_NAME)
+        full_name = os.path.join(gl.SOURCE_PATH, gl.XLS_NAME)
         if int(gl.TEST_CONF['is_57_out_excel']) == 1:
             excel_workbook = openpyxl.load_workbook(full_name)
             work_sheet = excel_workbook.worksheets[0]
@@ -568,13 +585,14 @@ def test58_file_integrity():
     xml_mro_item_dict = {"MR.LteScRSRP":2,'MR.LteNcRSRP':3,'MR.LteScRSRQ':4,'MR.LteNcRSRQ':5,'MR.LteScPHR':6, 'MR.LteScRIP':7, 'MR.LteScSinrUL':8 }
     temp_loop_flag = 0
     is_object_empty = 0
-    temp_test_flag_dict = {'MR.LteScRSRP':0,'MR.LteScRSRQ':0,'MR.LteScPHR':0,'MR.LteScSinrUL':0,'MR.LteScRIP':0, 'MR.LteNcRSRP':0, 'MR.LteNcRSRQ':0}
+
     with open(gl.OUT_PATH, 'a') as file_object:
         file_object.write(date_time + " | ")
         file_object.write(gl.TEST_CONF['test_total_time'] + " | " )
 
     for time_entity in gl.MR_DICT:
         try:
+            temp_test_flag_dict = {'MR.LteScRSRP':0,'MR.LteScRSRQ':0,'MR.LteScPHR':0,'MR.LteScSinrUL':0,'MR.LteScRIP':0, 'MR.LteNcRSRP':0, 'MR.LteNcRSRQ':0}
             mro_file = gl.MR_DICT[time_entity][0]['MRO']
             mro_dom = gl.MR_DICT[time_entity][gl.MR_TYPE['MRO']]['xmldom']
             mro_root = mro_dom.documentElement
@@ -726,7 +744,7 @@ def test58_file_integrity():
                     file_object.write('\t' + out_text_list[mr_file][i])
         file_object.write('\n')
     if int(gl.TEST_CONF['is_58_out_excel']) == 1:
-        full_name = os.path.join(gl.OUTPUT_PATH, gl.XLS_NAME)
+        full_name = os.path.join(gl.SOURCE_PATH, gl.XLS_NAME)
         excel_workbook = openpyxl.load_workbook(full_name)
         work_sheet = excel_workbook.worksheets[2]
 
@@ -743,6 +761,8 @@ def test59_file_integrity():
     mr_utils.test_out_data_item_header("test_59")
     date_time = mr_utils.get_time_format(gl.TIME_OUTPUT_FORMAT)
 
+    mre_event_begin_timestamp = mr_utils.get_timestamp_by_str_format(gl.TEST_CONF['mre_begin_time'])
+    mre_event_end_timestamp = mr_utils.get_timestamp_by_str_format(gl.TEST_CONF['mre_end_time'])
     range_list = [[0,97], [0,97], [0,34], [0,34], [0, 41589], [0, 503], [0, 41589],  [0, 503], [0,1023], [0,63], [0,7], [0,7]]
 
     out_mre_list = ['A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'B1', 'B2']
@@ -750,7 +770,7 @@ def test59_file_integrity():
     mre_smr_head = 'MR.LteScRSRP MR.LteNcRSRP MR.LteScRSRQ MR.LteNcRSRQ MR.LteScEarfcn MR.LteScPci MR.LteNcEarfcn MR.LteNcPci MR.GsmNcellBcch MR.GsmNcellCarrierRSSI MR.GsmNcellNcc MR.GsmNcellBcc'
     mre_smr_list = ['MR.LteScRSRP' ,'MR.LteNcRSRP' ,'MR.LteScRSRQ' ,'MR.LteNcRSRQ' ,'MR.LteScEarfcn' ,'MR.LteScPci' ,'MR.LteNcEarfcn' ,'MR.LteNcPci' ,'MR.GsmNcellBcch' ,'MR.GsmNcellCarrierRSSI' ,'MR.GsmNcellNcc' ,'MR.GsmNcellBcc']
 
-    event_deal_list = []
+
 
 
     xml_out_dict = {'A1':{'item':[2,5], 'event':2}, 'A2':{'item':[6,9], 'event':6}, 'A3':{'item':[10,13], 'event':10}, 'A4':{'item':[14,17], 'event':14}, 'A5':{'item':[18,25], 'event':18},
@@ -760,8 +780,12 @@ def test59_file_integrity():
 
     out_mre_text = {}
     mre_conf_dict = {}
+    for mre_event in out_mre_list:
+        gl.test_mre_event_num_dict[mre_event]['num'] = 0
+        gl.test_mre_event_num_dict[mre_event]['time_str'] = []
     for time_entity in gl.MR_DICT:
         try:
+            event_deal_list = []
             mre_conf_dict = {'A1':{'flag':0, 'pos':[0,2,4,5], 'range':range_list, 'error_pos_list':[]},
                          'A2':{'flag':0, 'pos':[0,2,4,5], 'range':range_list, 'error_pos_list':[]},
                          'A3':{'flag':0, 'pos':[0,1,2,3,4,5,6,7], 'range':range_list, 'error_pos_list':[]},
@@ -803,6 +827,12 @@ def test59_file_integrity():
                 test_excess_flag = 0
                 for event_type in event_deal_list:
                     if event_type == object_entity.getAttribute('EventType'):
+                        time_now_str = str(object_entity.getAttribute('TimeStamp'))
+                        time_now_timestamp = mr_utils.get_timestamp_by_str_format(time_now_str)
+                        if time_now_timestamp >= mre_event_begin_timestamp and time_now_timestamp <= mre_event_end_timestamp:
+                            gl.test_mre_event_num_dict[event_type]['num'] += 1
+                            gl.test_mre_event_num_dict[event_type]['time_str'].append(time_now_str)
+
                         test_excess_flag = 1
                         mre_conf_dict[event_type]['flag'] = 1
                         for value_entity in object_entity.getElementsByTagName('v'):
@@ -858,7 +888,7 @@ def test59_file_integrity():
 
 
     if int(gl.TEST_CONF['is_59_out_excel']) == 1:
-        full_name = os.path.join(gl.OUTPUT_PATH, gl.XLS_NAME)
+        full_name = os.path.join(gl.SOURCE_PATH, gl.XLS_NAME)
         excel_workbook = openpyxl.load_workbook(full_name)
         work_sheet = excel_workbook.worksheets[3]
 
@@ -916,7 +946,7 @@ def test63_file_accuracy():
 def test71_file_accuracy():
     mr_utils.test_out_data_item_header("test_71")
     date_time = mr_utils.get_time_format(gl.TIME_OUTPUT_FORMAT)
-
+    time_sub = 0 if gl.IS_SSH_CONN == 0 else mr_utils.get_two_linux_time_sub()
     test_flag = 0
     out_text_list = {}
     try:
@@ -935,6 +965,9 @@ def test71_file_accuracy():
                 mr_file_root = mr_file_dom[i].documentElement
                 start_report_Time = mr_utils.get_timestamp_by_str_format(mr_file_root.getElementsByTagName('fileHeader')[0].getAttribute('reportTime'))
                 start_report_Time /= 1000
+                #TODO: get two linux
+
+                start_report_Time -= time_sub
                 filename = mr_file_name[i].strip('\\').split('\\')[len(mr_file_name[i].strip('\\').split('\\'))-1]
                 if gl.MR_REMOTE_FILE_TIME_DIST.__contains__(filename) == False:
                     file_create_time = time.mktime(time.gmtime(os.path.getmtime(mr_file_name[i])))
@@ -983,7 +1016,7 @@ def test71_file_accuracy():
                 for i in range(len(out_text_list[file_name])):
                     file_object.write('\t' + out_text_list[file_name][i])
     except Exception as result:
-        print (result)
+        # print (result)
         raise Exception('<%s> %s'%(str(result.__traceback__.tb_lineno),result))
 
 def test72_file_accuracy():
@@ -1094,7 +1127,7 @@ def test72_file_accuracy():
 
                     #获得子帧分帧
                     prbnum_list = []
-                    if re.search(r',', gl.MR_CONF['PrbNum']) == None:
+                    if re.search(r',', gl.MR_CONF['PrbNum']) == None and '.' in gl.MR_CONF['PrbNum']:
                         for i in range(int(gl.MR_CONF['PrbNum'].strip('....').split('....')[0]), 1 + int(gl.MR_CONF['PrbNum'].strip('....').split('....')[1])):
                             prbnum_list.append(str(i))
                     else:
@@ -1306,11 +1339,11 @@ def test_add_timestamp_number():
                         if timestamp_dict[l_entity][cell_id]['time_stamp'][0] != start_time_stamp:
                             mr_utils.out_text_dict_append_list(out_text_dict, mro_file, '[%s] <%s startTimeStamp not match>: %s(start) != %s(first) \n'%(cell_id,l_entity,
                                 mr_utils.get_time_format_by_timestamp(start_time_stamp),
-                                timestamp_dict[l_entity]['time_str'][0]))
+                                timestamp_dict[l_entity][cell_id]['time_str'][0]))
                         if timestamp_dict[l_entity][cell_id]['time_stamp'][len(timestamp_dict[l_entity][cell_id]['time_stamp']) - 1] != end_time_stamp:
                             mr_utils.out_text_dict_append_list(out_text_dict, mro_file, '[%s] <%s endTimeStamp not match>: %s(end) != %s(last) \n'%(cell_id,l_entity,
                                 mro_root.getElementsByTagName('fileHeader')[0].getAttribute('endTime'),
-                                timestamp_dict[l_entity]['time_str'][len(timestamp_dict[l_entity]['time_stamp']) - 1]))
+                                timestamp_dict[l_entity][cell_id]['time_str'][len(timestamp_dict[l_entity][cell_id]['time_stamp']) - 1]))
                 for cell_id in timestamp_dict['l2'] if len(timestamp_dict['l2']) >= len(timestamp_dict['l3']) else timestamp_dict['l3']:
                     if timestamp_dict['l2'].__contains__(cell_id) == True and timestamp_dict['l3'].__contains__(cell_id) == True:
                         l3_index = 0
@@ -1441,9 +1474,9 @@ def test_add_mro_s_mapping():
                                         value_str = object_entity.getElementsByTagName('v')[0].firstChild.data.strip().split(' ')[mro_item_dict[object_ue_id][mr_name_entity]['pos']]
                                         if value_str.isdigit() == True:
                                             value = int(value_str)
-                                            print (mr_name_entity)
-                                            print (item_range_list[mr_name_entity])
-                                            print ((len(item_range_list[mr_name_entity])))
+                                            # print (mr_name_entity)
+                                            # print (item_range_list[mr_name_entity])
+                                            # print ((len(item_range_list[mr_name_entity])))
                                             for idx in range(len(item_range_list[mr_name_entity])):
                                                 if mro_item_dict[object_ue_id][mr_name_entity].__contains__('item_num') == False:
                                                     mro_item_dict[object_ue_id][mr_name_entity]['item_num'] = {}
@@ -1510,6 +1543,18 @@ def test_add_mro_s_mapping():
         if temp_flag == 0:
             file_object.write('test ok')
 
+def test_add_mre_event_num():
+    set_event_str = ('A1', 'A2', 'A3', 'A4', 'A5', 'A6', 'B1', 'B2')
+    with open(gl.OUT_PATH, 'a') as file_object:
+        file_object.write('\n [' + ' add mre event total num ' + ']:\n')
+        file_object.write('==> time: %s - %s :\n'%(gl.TEST_CONF['mre_begin_time'], gl.TEST_CONF['mre_end_time']))
+        for event_str in set_event_str:
+            file_object.write(' '*4 + event_str + ' : ' + str(gl.test_mre_event_num_dict[event_str]['num']) + '\n')
+        for event_str in set_event_str:
+            file_object.write('====> time_str: ')
+            file_object.write(event_str + ' : ' + str(gl.test_mre_event_num_dict[event_str]['time_str']) + '\n')
+
+
 def mr_test_process():
 
     mr_utils.conf_xml_parse()
@@ -1532,8 +1577,55 @@ def mr_test_process():
     mr_utils.mr_function_process(test73_file_accuracy, 'test73')
     mr_utils.mr_function_process(test_add_timestamp_number, 'test_add_timestamp')
     mr_utils.mr_function_process(test_add_mro_s_mapping, 'test_add_mro_s_value')
+    mr_utils.mr_function_process(test_add_mre_event_num, 'test_add_mre_event_num')
+
+    if int(gl.TEST_CONF['is_57_out_excel']) == 1 or int(gl.TEST_CONF['is_58_out_excel']) == 1 or int(gl.TEST_CONF['is_59_out_excel']) == 1:
+        src_name = os.path.join(gl.SOURCE_PATH, gl.XLS_NAME)
+        dst_name = os.path.join(gl.OUTPUT_PATH, gl.XLS_NAME)
+        shutil.copy(src_name, dst_name )
 
 
+def pm_log_read_process():
+    try:
+        ssh = mr_utils.ssh_tool("10.110.38.222", 22, "root", "Bingo1993")
+        result1 = ssh.cmd_run("cat /var/log/cspl/log_enodeb.dat | grep -E 'oam_mt_pm_report_meas_data.*is upload pm file:<yes>' | awk '{print $1,$2,$18}'")
+        pm_log_list = []
+        mr_utils.conf_xml_parse()
+        #TODO: 在mr哪里，写xml文件的时候，其实就是global里面，没有添加pm，就会导致出错
+        time_spec = int(gl.PM_CONF['PeriodicUploadTime'].split(':')[1]) * 60 % int(gl.PM_CONF['PeriodicUploadInterval'])
+        for str1 in result1.decode('utf-8').splitlines():
+            print (str1)
+            pm_log_dict = {}
+            # pm_log_dict['str1'] = str1
+            pm_log_dict['time_stamp'] = int (mr_utils.get_timestamp_by_str_format(str1.split('[')[0].strip(), format="%Y.%m.%d %H:%M:%S.%f") / 1000)
+            pm_log_dict['filename'] = str2 = str1.split('[')[1].split(']')[0]
+
+            gen_time_str = str2.split('_')[2].split('.')[0] + str2.split('_')[2].split('.')[1].split('-')[1].split('+')[0] + '00'
+            pm_log_dict['gen_time'] = int (mr_utils.get_timestamp_by_str_format(gen_time_str, format="%Y%m%d%H%M%S") / 1000)
+            pm_log_dict['result'] = 'Y' if pm_log_dict['time_stamp'] - pm_log_dict['gen_time'] == time_spec else 'N'
+            pm_log_list.append(pm_log_dict)
+        # print (pm_log_list)
+
+        with open(gl.OUTPUT_PATH+'data.txt', 'w') as file_object:
+            for i in range(len(pm_log_list)):
+                file_object.write(pm_log_list[i]['filename'] + '-->  file report offset_time:  ' + pm_log_list[i]['result'] + '\n')
+
+
+        del ssh
+    except Exception as rt:
+        print ("%s %d"%(rt, rt.__traceback__.tb_lineno))
+def pm_report_offset_process():
+    #这一步是通过远程ssh访问服务器，pm上报到两个服务器上面，首先获取两个服务器的时间差。然后是获取基站的服务器的文件名，到远端服务器去找对应的文件，判断时间差值是否是一致的。
+    ssh1 = mr_utils.ssh_tool("10.110.38.222", 22, "root", "Bingo1993")
+    ssh2 = mr_utils.ssh_tool("10.110.38.214", 22, "root", "Bingo1993")
+    # time1 =
+    pass
+
+def pm_test_process():
+    try:
+        pm_log_read_process()
+    except Exception as rt:
+        print ("%s %d"%(rt, rt.__traceback__.tb_lineno))
 
 
 

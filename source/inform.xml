@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<information>
+    <login>
+        <item_name user="" passwd="" port="" />
+    </login>
+    <else>
+        <mr_download_path> </mr_download_path>
+
+    </else>
+</information>

@@ -3,6 +3,9 @@ import os
 import re
 import time
 import datetime
+import paramiko
+import shutil
+
 import xml.dom.minidom as xmldom
 import mr_globel as gl
 write_info = lambda info:gl.str_info.append(str(info))
@@ -15,7 +18,6 @@ def MR_xml_init():
     re_search_str = gl.TEST_CONF['standard_LTE'] + '_MR'
     for file in file_list:
         full_file = os.path.join(gl.MR_TEST_PATH, file)
-        print (file)
         if  os.path.isdir(full_file) == False and re.search(re_search_str, file) != None:
 
             MR_FILE = {}
@@ -25,7 +27,8 @@ def MR_xml_init():
             if MR_xml_file_name_accuracy(file) == False :
                 continue
             file_data_list = file.split('_')
-            print ('--->' + full_file)
+            print ('111-->' + full_file)
+            # print ('--->' + full_file)
             ##这一块暂时没有用
             MR_FILE['standard_LTE'] = file_data_list[0]
             MR_FILE['type'] = file_data_list[1]
@@ -133,6 +136,13 @@ def conf_xml_parse():
                 gl.MR_CONF[mr_conf_dict_key_entity] = mr_conf_entity.getElementsByTagName(mr_conf_dict_key_entity)[0].firstChild.data
                 #print( mr_conf_dict_key_entity + " - " + MR_CONF[mr_conf_dict_key_entity])
 
+        #解析PM_CONF， 这个是PM的下发命令
+        pm_conf_list = conf_root.getElementsByTagName('PM_CONF')
+        for pm_conf_entity in pm_conf_list:
+            for pm_conf_dict_key_entity in gl.PM_CONF:
+                gl.PM_CONF[pm_conf_dict_key_entity] = pm_conf_entity.getElementsByTagName(pm_conf_dict_key_entity)[0].firstChild.data
+                # print (pm_conf_dict_key_entity + '-' + gl.PM_CONF[pm_conf_dict_key_entity])
+
         #解析TEST_OUT, 这个是最后输出的项 分别对应测试文档中的每个项
         test_out_list = conf_root.getElementsByTagName("TEST_OUT")
         for test_out_entity in test_out_list:
@@ -169,6 +179,7 @@ def get_time_format_by_timestamp(time_stamp, format="%Y-%m-%dT%H:%M:%S.%f"):
     date_time = d.strftime(format)
     return date_time
 
+#记得 单位是 毫秒
 def get_timestamp_by_str_format(time_str, format="%Y-%m-%dT%H:%M:%S.%f"):
     time_array = datetime.datetime.strptime(time_str, format)
     timestamp = int(time.mktime(time_array.timetuple())*1000.0 + time_array.microsecond/1000.0)
@@ -299,7 +310,7 @@ def test_out_data_item_header(out_type):
 
         for i in range( gl.TEST_OUT[out_type][0]):
             file_object.write(gl.TEST_ITEM_LIST[gl.TEST_OUT[out_type][i+1]])
-            file_object.write(" | ");
+            file_object.write(" | ")
         file_object.write("\n")
 
 
@@ -456,7 +467,18 @@ def is_mrs_measurement_smr_value_correct(mr_name, smr_str, value_str):
             if len(smr_list) != len(value_list):
                 return False
 
+def conf_xml_self_mod():
+    if gl.MR_CONF['SampleEndTime'] != '0001-01-01T00:00:00Z' and gl.MR_CONF['SampleBeginTime'] != '0001-01-01T00:00:00Z' :
+        startTimestamp = get_timestamp_by_str_format(gl.MR_CONF['SampleBeginTime'], '%Y-%m-%dT%H:%M:%SZ') / 1000
+        endTimestamp = get_timestamp_by_str_format(gl.MR_CONF['SampleEndTime'], '%Y-%m-%dT%H:%M:%SZ') / 1000
+        print (endTimestamp - startTimestamp)
+        spec_timestamp = round(((endTimestamp - startTimestamp) - (endTimestamp - startTimestamp)%60) / float(3600), 2)
+        print (spec_timestamp)
+        gl.CONF_XML_DATA[1]['test_total_time'] = str(spec_timestamp)
+
+
 def create_conf_xml(path):
+    conf_xml_self_mod()
     with open(path, 'w', encoding='UTF8') as file_object:
         file_object.write(gl.CONF_XML_DATA[0])
         for item_key in gl.CONF_XML_DATA[1]:
@@ -481,5 +503,151 @@ def mr_function_process(function_call, id_str, info=""):
             write_info ('err in %s: %s (tips:%s)'%(id_str, result, info))
 
 def mr_out_file_data_head():
-    with open(gl.OUT_PATH, 'w') as file_object:
+    gl.OUT_PATH = gl.OUTPUT_PATH + "data.txt"
+    with open(gl.OUT_PATH + "data.txt", 'w') as file_object:
         file_object.write(' '*14 + "<--------------LTE-TEST-RESULT-------------->")
+
+def construct_timestr(var_set = (), format="%04d-%02d-%02dT%02d:%02d:%02d.%03d"):
+    format_str = ''
+    try:
+        format_str = format%(var_set)
+    except Exception as rt:
+        write_info ('err in construct timestr : %s - %d'%(rt, rt.__traceback__.tb_lineno))
+    return format_str
+
+
+class sftp_tool:
+    def __init__(self, remote_ip, remote_port, ssh_user, ssh_passwd):
+        trans = paramiko.Transport((remote_ip, int(remote_port)))
+        trans.connect(username=ssh_user, password=ssh_passwd)
+        self.sftp = paramiko.SFTPClient.from_transport(trans)
+    def get(self, remote_file_path, local_file_path, progress_bar=None, filter='^.*\.xml$', label_down = None):
+        try:
+            file_list = []#self.sftp.listdir(remote_file_path)
+            x_attr = self.sftp.listdir_attr(remote_file_path)
+            for file in x_attr:
+                # if "xml" in file.filename:
+                if re.match(filter, file.filename) != None:
+                    file_list.append(file.filename)
+                    if gl.MR_REMOTE_FILE_TIME_DIST.__contains__(file.filename) == False:
+                        gl.MR_REMOTE_FILE_TIME_DIST[file.filename] = file.st_mtime
+            progress_idx = 0
+            # local_file_list = os.listdir(local_file_path)
+            if progress_bar != None:
+                progress_bar.setMaximum(len(file_list) )
+            # if len(file_list) != 0:
+            #     for rm_file_name in local_file_list:
+            #         progress_idx += 1
+            #         if label_down != None:
+            #             label_down.setText ('remove  <%d> %s'%(progress_idx , rm_file_name))
+            #         os.remove(os.path.join(local_file_path+'\\', rm_file_name))
+            #         if progress_bar != None :
+            #             progress_bar.setValue(progress_idx)
+
+            for file in file_list:
+                print (file)
+                self.sftp.get(os.path.join(remote_file_path, file), os.path.join(local_file_path+'\\', file))
+                progress_idx += 1
+                if progress_bar != None :
+                    progress_bar.setValue(progress_idx)
+                if label_down != None:
+                    label_down.setText('<%d> %s'%(progress_idx , file))
+
+
+        except Exception as rt:
+            print ("%s %d"%(rt, rt.__traceback__.tb_lineno))
+
+
+class ssh_tool:
+    def __init__(self,remote_ip, port=22, username="root", passwd=""):
+        self.ssh = paramiko.SSHClient()
+        self.ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        self.ssh.connect(remote_ip, port, username, passwd, timeout=3)
+    def __del__(self):
+        self.ssh.close()
+    def cmd_run(self, cmd=""):
+        stdin, stdout, stderr = self.ssh.exec_command(cmd)
+        return stdout.read()
+
+def parse_info_xml():
+    full_file_name = os.path.join(gl.SOURCE_PATH, "inform.xml")
+
+    if os.path.exists(full_file_name):
+        conf_dom = xmldom.parse(full_file_name)
+        conf_root = conf_dom.documentElement
+
+
+def check_conf_xml(conf_path):
+    if os.path.exists(conf_path) == False:
+        create_conf_xml(conf_path)
+    else:
+        first_line = ''
+        with open(conf_path, 'r', encoding='UTF8') as file_object:
+            first_line = file_object.readline()
+        if '<?xml version="1.0" encoding="UTF-8"?>'  in first_line:
+            print ('conf.xml correct')
+        else:
+            os.remove(conf_path)
+            create_conf_xml(conf_path)
+
+
+def get_two_linux_time_sub():
+    remote_user = gl.INFORM_DICT[gl.MR_DOWNLOAD_IP]['user']
+    remote_passwd = gl.INFORM_DICT[gl.MR_DOWNLOAD_IP]['passwd']
+    enb_ip = [key for key in gl.INFORM_DICT if gl.TEST_CONF['enbid'] in key][0]
+    print (enb_ip)
+    enb_user = gl.INFORM_DICT[enb_ip]['user']
+    enb_passwd = gl.INFORM_DICT[enb_ip]['passwd']
+    ssh1 = ssh_tool(enb_ip, 22, enb_user, enb_passwd)
+    ssh2 = ssh_tool(gl.MR_DOWNLOAD_IP, 22, remote_user, remote_passwd)
+    time1 = ssh1.cmd_run("date +%s")
+    time2 = ssh2.cmd_run("date +%s")
+    del ssh1
+    del ssh2
+    return int(time1) - int(time2)
+
+def get_split_list(str1 : str, sep1=' '):
+    return str1.split(sep1)
+
+def get_two_split_list(str1 : str, sep1 = ' ', sep2 = ' '):
+    for item in str1.split(sep1):
+        key, value = item.split(sep2)
+        yield key, value
+
+def init_inform_dict():
+    full_file_name = os.path.join(gl.SOURCE_PATH, "msg.txt")
+
+    if os.path.exists(full_file_name):
+        with open(full_file_name, 'rt') as file_object:
+            for line in file_object.readlines():
+                key = line.split(':')[0].strip()
+                value = line.strip('<\n').split(':')[1]
+                temp = {}
+                for item_key , item_value in get_two_split_list(value.strip(), ',', '='):
+                    temp[str(item_key).strip()] = item_value
+                gl.INFORM_DICT[key] = temp
+        print (gl.INFORM_DICT)
+
+
+def get_dict_key_list(dict1 : dict):
+    return [i for i in dict1.keys()]
+
+def get_dict_value_list(dict1 : dict):
+    return [i for i in dict1.values()]
+
+def write_inform_file():
+    full_file_name = os.path.join(gl.SOURCE_PATH, "msg.txt")
+
+    if os.path.exists(full_file_name):
+        with open(full_file_name, 'w') as file_object:
+            for item in gl.INFORM_DICT:
+                str1 = "%s:"%(item)
+                for key, value in gl.INFORM_DICT[item].items():
+                    str1 += "%s=%s,"%(key,value)
+
+                str1 = str1[0:-1] + '<\n'
+                file_object.write(str1)
+
+
+def copy_file(src_name : str, dst_name : str):
+    shutil.copy(src_name, dst_name )
