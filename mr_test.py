@@ -16,7 +16,7 @@ if __name__ == '__main__':
     print('mr test ...')
     app = mr_qt.create_qt_application()
 
-    ui = mr_qt.mr_ui_window()
+    ui = mr_qt.pm_mr_dialog()
 
     mr_qt.exit_qt_application(app.exec_())
 
