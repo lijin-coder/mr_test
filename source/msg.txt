@@ -1,5 +1,0 @@
-10.110.38.226:user=root,passwd=Bingo1993,path=/data/oran_sftp/pm_mr_mgmt/measurement/1/,filter=^.*226.*\.xml$<
-10.110.38.215:user=root,passwd=Bingo1993,path=/data/oran_sftp/pm_mr_mgmt/measurement/1/,filter=^.*215.*\.xml$<
-10.110.38.221:user=root,passwd=Bingo1993,path=/data/oran_sftp/pm_mr_mgmt/measurement/1/,filter=^.*221.*\.xml$<
-10.110.38.222:user=root,passwd=Bingo1993,path=/data/oran_sftp/pm_mr_mgmt/measurement/1/,filter=^.*222.*\.xml$<
-10.110.38.214:user=root,passwd=Bingo1993,path=/LTE/user/Area0/temp/pm//,filter=^.*f1_226.*\.xml$<
